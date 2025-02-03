@@ -10,7 +10,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-// Unstable settings for the router
+// Unstable settings to set the initial route to the login page
 export const unstable_settings = {
   // Ensure any route can link back to `/`
   initialRouteName: '(auth)/login',
@@ -21,6 +21,8 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
+    // TODO: Implement auth here ?
+
     router.replace("/(auth)/login")
     SplashScreen.hideAsync();
   }, []);

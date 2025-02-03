@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import { Link } from 'expo-router';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -17,10 +17,11 @@ export default function LoginPage() {
   };
 
   return (
-    <View style={tw`flex-1 bg-white p-4 justify-center`}>
-      <View style={tw`w-full max-w-md mx-auto space-y-8`}>
+    <View style={tw`flex-1 bg-gray-100 px-7`}>
+      <SafeAreaView>
+
         {/* Logo and Brand */}
-        <View style={tw`flex-row items-center justify-center gap-3`}>
+        <View style={tw`flex-row items-center justify-center gap-3 mt-25`}>
           {/* <Image
             source={require('../../assets/vayro-icon.png')}
             style={tw`w-8 h-8`}
@@ -30,51 +31,53 @@ export default function LoginPage() {
         </View>
 
         {/* Login Form */}
-        <View style={tw`mt-8 space-y-6`}>
-          <View style={tw`space-y-4`}>
-            {/* Username Input */}
-            <View style={tw`shadow-sm`}>
-              <TextInput
-                placeholder="Username"
-                value={credentials.username}
-                onChangeText={(text) =>
-                  setCredentials(prev => ({ ...prev, username: text }))
-                }
-                style={tw`w-full px-4 py-3 bg-white rounded-md border border-gray-200`}
-                placeholderTextColor="#6B7280"
-              />
-            </View>
+        <View style={tw`mt-10`}>
+          {/* Username Input */}
+          <View style={tw`shadow-md mb-6`}>
+            <TextInput
+              style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
+              placeholder="Username"
+              value={credentials.username}
+              onChangeText={(text) =>
+                setCredentials(prev => ({ ...prev, username: text }))
+              }
 
-            {/* Password Input */}
-            <View style={tw`shadow-sm`}>
-              <TextInput
-                placeholder="Password"
-                value={credentials.password}
-                onChangeText={(text) =>
-                  setCredentials(prev => ({ ...prev, password: text }))
-                }
-                secureTextEntry
-                style={tw`w-full px-4 py-3 bg-white rounded-md border border-gray-200`}
-                placeholderTextColor="#6B7280"
-              />
-            </View>
+              placeholderTextColor="#6B7280"
+            />
           </View>
 
-          {/* Register Link */}
-          <View style={tw`items-center`}>
-            <Text style={tw`underline`}>Register/Sign Up</Text>
+          {/* Password Input */}
+          <View style={tw`shadow-md mb-6`}>
+            <TextInput
+              style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
+              placeholder="Password"
+              value={credentials.password}
+              onChangeText={(text) =>
+                setCredentials(prev => ({ ...prev, password: text }))
+              }
+              secureTextEntry
+              placeholderTextColor="#6B7280"
+            />
           </View>
+        </View>
 
-          {/* Login Button */}
+        {/* Register Link */}
+        <View style={tw`items-center mb-15`}>
+          <Text style={tw`underline`}>Register/Sign Up</Text>
+        </View>
+
+        {/* Login Button */}
+        <View style={tw`items-center`}>
           <TouchableOpacity
+            // HEX color value copied from Figma
+            style={tw`justify-center items-center w-2/3 py-3 px-4 bg-[#ACA592] rounded-lg`}
             onPress={handleSubmit}
-            style={tw`w-full py-3 px-4 bg-[#B3ADA3] rounded-md`}
             activeOpacity={0.8}
           >
             <Text style={tw`text-white text-center font-medium`}>Login</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     </View>
   );
 }
