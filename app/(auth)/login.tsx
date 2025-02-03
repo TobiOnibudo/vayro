@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
-import { Link } from 'expo-router';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
+import { LoginUser } from '@/types/userSchema';
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [credentials, setCredentials] = useState({
+  const [credentials, setCredentials] = useState<LoginUser>({
     username: '',
     password: '',
   });
 
   const handleSubmit = async () => {
     // Add your login logic here
+    // TODO: reset useState to empty strings when done
   };
 
   return (
@@ -21,13 +22,12 @@ export default function LoginPage() {
       <SafeAreaView>
 
         {/* Logo and Brand */}
-        <View style={tw`flex-row items-center justify-center gap-3 mt-25`}>
-          {/* <Image
-            source={require('../../assets/vayro-icon.png')}
-            style={tw`w-8 h-8`}
+        <View style={tw`flex-row items-center justify-center mt-25`}>
+          <Image
+            source={require('@/assets/images/logo_and_name.png')}
+            style={tw`w-60 h-20`}
             resizeMode="contain"
-          /> */}
-          <Text style={tw`text-3xl font-light text-gray-800`}>Vayro</Text>
+          />
         </View>
 
         {/* Login Form */}
@@ -42,7 +42,7 @@ export default function LoginPage() {
                 setCredentials(prev => ({ ...prev, username: text }))
               }
 
-              placeholderTextColor="#6B7280"
+              placeholderTextColor={tw.color('gray-500')}
             />
           </View>
 
@@ -56,7 +56,7 @@ export default function LoginPage() {
                 setCredentials(prev => ({ ...prev, password: text }))
               }
               secureTextEntry
-              placeholderTextColor="#6B7280"
+              placeholderTextColor={tw.color('gray-500')}
             />
           </View>
         </View>
