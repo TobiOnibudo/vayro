@@ -63,8 +63,11 @@ export default function LoginPage() {
 
         {/* Register Link */}
         <View style={tw`items-center mb-15`}>
-          <Text style={tw`underline`}>Register/Sign Up</Text>
+          <TouchableOpacity onPress={() => router.push('/signup')}>
+          <Text style={[tw`underline`, { color: '#3f698d' }]}>Register/Sign Up</Text>
+          </TouchableOpacity>
         </View>
+
 
         {/* Login Button */}
         <View style={tw`items-center`}>
