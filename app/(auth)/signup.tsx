@@ -4,6 +4,11 @@ import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { SignUpUser} from '@/types/userSchema'; // Assume this type exists
 import { Ionicons } from '@expo/vector-icons';
+import { auth } from '@/config/firebaseConfig';
+import { createUserWithEmailAndPassword } from '@firebase/auth';
+import { ref, set } from 'firebase/database';
+import { database } from '@/config/firebaseConfig';  // Make sure database is exported from your config
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -20,11 +25,40 @@ export default function SignUp() {
         phone: '',
     });
 
-    const handleSignUp = async () => {
-        // Add your registration logic here
-        // TODO: reset useState to empty strings when done
-    };
+    
+  const handleSignUp = async () => {
+    try {
+        console.log("user: "+ userData)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        userData.email,
+        userData.password
+      );
+      console.log(userCredential)
+      const user = userCredential.user;
+      const userDetails = {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        username: userData.username,
+        email: userData.email,
+        address: userData.address,
+        phone: userData.phone,
+        createdAt: new Date().toISOString(),
+      }
+      
+      // Save user data to Realtime Database
+      await set(ref(database, '/users/' + user.uid), userDetails );
 
+      // Save essential user data to AsyncStorage
+      await AsyncStorage.setItem('userData', JSON.stringify(userDetails));
+
+      console.log("User registered and data saved successfully");
+      router.push('/');
+    } catch (error: any) {
+      console.error("Signup error:", error.message);
+      // Add error handling UI here
+    }
+  };
 
     return (
         <View style={tw`flex-1 bg-gray-100 px-7`}>
