@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -16,6 +16,18 @@ export default function LoginPage() {
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const userDataString = await AsyncStorage.getItem('userData');
+
+      // Auto login
+      if (userDataString) {
+        router.push('/')
+      }
+    };
+    loadUser();
+  }, []);
 
   const handleLogin = async () => {
     try {
