@@ -29,15 +29,14 @@ export const geminiResponseSchema = z.object({
 
 export type GeminiResponse = z.infer<typeof geminiResponseSchema>;
 
-export type GeminiAPIResponse = {
+export type APIGeminiResponse = {
   success: boolean;
   code: number;
   data: GeminiResponse | null;
   error?: string;
 };
 
-export async function getPriceSuggestion(data: FormSchema): Promise<GeminiAPIResponse> {
-  console.log("API called");
+export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiResponse> {
   const { title, description, condition, category, boughtInYear } = data;
 
   const prompt = `

@@ -40,7 +40,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(price-suggestion)" options={{ 
           title: "",
-          headerBackTitle: "Back"
+          headerBackTitle: "Sell Page"
         }} 
         />
         <Stack.Screen name="+not-found" />

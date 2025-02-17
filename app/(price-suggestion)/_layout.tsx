@@ -8,6 +8,16 @@ export default function PriceSuggestionLayout() {
         title: "",
         headerBackVisible: false
       }} />
+      <Stack.Screen name="gemini-response" options={{ 
+        headerShown: false,
+        title: "",
+        headerBackVisible: false
+      }} />
+      <Stack.Screen name="request-price-form" options={{ 
+        headerShown: false,
+        title: "",
+        headerBackVisible: false
+      }} />
     </Stack>
   );
 }

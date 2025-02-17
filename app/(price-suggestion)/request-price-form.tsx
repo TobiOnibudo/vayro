@@ -3,30 +3,29 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
-import { useState, useRef } from "react";
-import { getPriceSuggestion } from "@/api/geminiAPI";
-
+import { useState } from "react";
 // Check `~/types/priceSuggestionFromSchema.ts` for the types and schema
 import { schema, type FormSchema, CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
+import { useRouter } from "expo-router";
+import { useScrollToInput } from "@/hooks/useScrollToInput";
 
+const ConditionPickerValues = ["", ...Object.values(CONDITIONS_VALUES)];
+const CategoryPickerValues = ["", ...Object.values(CATEGORIES_VALUES)];
 
 export default function RequestPriceForm() {
+  const router = useRouter();
   const { control, handleSubmit, formState: { errors } } = useForm<FormSchema>({
     resolver: zodResolver(schema),
   });
   const [showConditionPicker, setShowConditionPicker] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const { scrollToInput, scrollViewRef } = useScrollToInput();
 
   const onSubmit = async (data: FormSchema) => {
-    const result = await getPriceSuggestion(data);
-    console.log(result);
-  };
-
-
-
-  const scrollToInput = (y: number) => {
-    scrollViewRef.current?.scrollTo({ y: y, animated: true });
+    router.push({
+      pathname: "/(price-suggestion)/gemini-response",
+      params: { data: JSON.stringify(data) },
+    });
   };
 
   return (
@@ -126,7 +125,7 @@ export default function RequestPriceForm() {
                               onChange(itemValue);
                             }}
                           >
-                            {Object.values(CONDITIONS_VALUES).map((condition) => (
+                            {ConditionPickerValues.map((condition) => (
                               <Picker.Item
                                 key={condition}
                                 label={condition.charAt(0).toUpperCase() + condition.slice(1)}
@@ -177,7 +176,7 @@ export default function RequestPriceForm() {
                               onChange(itemValue);
                             }}
                           >
-                            {Object.values(CATEGORIES_VALUES).map((category) => (
+                            {CategoryPickerValues.map((category) => (
                               <Picker.Item
                                 key={category}
                                 label={category.charAt(0).toUpperCase() + category.slice(1)}
