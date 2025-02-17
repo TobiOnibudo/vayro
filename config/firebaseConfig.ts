@@ -1,9 +1,10 @@
 import { initializeApp } from 'firebase/app';
 
 // Optionally import the services that you want to use
-import {getAuth} from 'firebase/auth'
-import {getDatabase} from 'firebase/database'
-
+// NOTE: Since EXPO and Firebase have TS declarions issues, Firebase getReactNativePersistence will be flagged as an error but it is available.
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth'
+import { getDatabase } from 'firebase/database'
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage'
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -18,10 +19,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 
-const auth = getAuth(app)
-const db = getDatabase(app)
+const auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+})
+const database = getDatabase(app)
 
 // Add exports
-export { app, auth, db }
-
-export const database = getDatabase(app)
+export { app, auth, database }

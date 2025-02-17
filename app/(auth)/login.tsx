@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 're
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { LoginUser } from '@/types/userSchema';
-import { auth, db } from '@/config/firebaseConfig';
+import { auth } from '@/config/firebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, get } from 'firebase/database';
