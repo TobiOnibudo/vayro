@@ -25,22 +25,11 @@ export default function RootLayout() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        router.replace("/(tabs)")
-      } else {    const loadUser = async () => {
-      const userDataString = await AsyncStorage.getItem('userData');
-
-          // Auto login
-      if (userDataString) {
-        router.push('/')
-      }else
-      {
+        router.replace("/")
+      } else {
         router.replace("/(auth)/login")
       }
     })
-      }
-    };
-    loadUser();
-
     SplashScreen.hideAsync();
     return unsubscribe;
   }, []);
