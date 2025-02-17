@@ -10,7 +10,7 @@ export interface Listing {
   };
   seller: {
     name: string;
-    rating: number;
+    email: string;
   };
 }
 
@@ -27,7 +27,7 @@ export const demoListings: Listing[] = [
     },
     seller: {
       name: 'John Doe',
-      rating: 4.5
+      email: 'john.doe@example.com'
     }
   },
   {
@@ -38,12 +38,42 @@ export const demoListings: Listing[] = [
     image: 'https://picsum.photos/200/300',
     location: {
       latitude: 44.6500,
-      longitude: -63.5950
+      longitude: -63.5700
     },
     seller: {
       name: 'Jane Smith',
-      rating: 4.8
+      email: 'jane.smith@example.com'
     }
   },
   // Add more demo items with different locations as needed
+  {
+    id: '3',
+    title: 'Antique Book Collection',
+    price: 250,
+    description: 'Rare collection of antique books, perfect for collectors.',
+    image: 'https://picsum.photos/200/300',
+    location: {
+      latitude: 44.6495,
+      longitude: -63.5720
+    },
+    seller: {
+      name: 'Alice Johnson',
+      email: 'alice.johnson@example.com'
+    }
+  },
+  {
+    id: '4',
+    title: 'Leather Messenger Bag',
+    price: 120,
+    description: 'Stylish and durable leather messenger bag, ideal for everyday use.',
+    image: 'https://picsum.photos/200/300',
+    location: {
+      latitude: 44.6510,
+      longitude: -63.5740
+    },
+    seller: {
+      name: 'Bob Williams',
+      email: 'bob.williams@example.com'
+    }
+  },
 ]; 

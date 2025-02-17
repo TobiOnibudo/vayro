@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import tw from 'twrnc';
@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoggedInUser } from '@/types/userSchema';
 import { useRouter } from 'expo-router';
 import { FeedCard } from '@/components/FeedCard';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import { demoListings, Listing } from '@/data/demoListings';
 import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
 import * as Location from 'expo-location';
@@ -15,19 +15,16 @@ export default function BuyScreen() {
   const router = useRouter();
   const [user, setUser] = React.useState<LoggedInUser | null>(null);
   const bottomSpacing = useBottomTabSpacing();
-  const [userLocation, setUserLocation] = React.useState({
-    latitude: 51.5074,
-    longitude: -0.1278,
-  });
   const [mapRegion, setMapRegion] = React.useState({
     latitude: 44.6488, // Halifax Latitude
     longitude: -63.5752, // Halifax Longitude
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [selectedListingId, setSelectedListingId] = React.useState<string | null>(null);
+  const [viewMode, setViewMode] = React.useState<'map' | 'list'>('map');
+  const [searchQuery, setSearchQuery] = React.useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadUser = async () => {
       const userDataString = await AsyncStorage.getItem('userData');
       if (userDataString) {
@@ -38,7 +35,7 @@ export default function BuyScreen() {
     loadUser();
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -55,7 +52,9 @@ export default function BuyScreen() {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           };
-          setMapRegion(newRegion); // Update mapRegion with user's location if available
+
+          // Update mapRegion with user's location if available
+          setMapRegion(newRegion); 
 
           console.log('Set map region to user location:', newRegion);
         } else {
@@ -64,11 +63,9 @@ export default function BuyScreen() {
       } catch (error) {
         console.error('Error getting location:', error);
       }
-    })();
+    })
   }, []);
 
-  const [viewMode, setViewMode] = React.useState<'map' | 'list'>('map');
-  const [searchQuery, setSearchQuery] = React.useState('');
 
   const renderListView = () => (
     <FlatList
@@ -100,25 +97,32 @@ export default function BuyScreen() {
         longitudeDelta: 0.2,
       }}
       showsUserLocation={true}
-      onPress={() => setSelectedListingId(null)}
     >
       {demoListings.map((listing: Listing) => (
         <Marker
           key={listing.id}
           coordinate={listing.location}
-          title={listing.title}
-          description={`$${listing.price}`}
-          onPress={() => {
-            setSelectedListingId(selectedListingId === listing.id ? null : listing.id);
-          }}
         >
-          {selectedListingId === listing.id ? (
-            <View style={{ backgroundColor: 'white', padding: 8, borderRadius: 6, elevation: 3, shadowColor: '#000', shadowOpacity: 0.2, position: 'absolute', bottom: 0, left: -50, width: 100 }}>
-              <Text style={{ fontWeight: 'bold', fontSize: 16, textAlign: 'center' }}>{listing.title}</Text>
-              <Text style={{ color: 'green', fontWeight: 'bold', textAlign: 'center' }}>${listing.price}</Text>
-              <Text style={{ fontSize: 12, color: 'gray', textAlign: 'center' }}>{listing.description}</Text>
+          <Callout onPress={() => {
+              console.log("Navigating to listing ID:", listing.id); 
+              router.push(`/listings/${listing.id}`);
+            }}>
+            <View style={{ 
+                backgroundColor: 'white', 
+                padding: 6, 
+                borderRadius: 6, 
+                elevation: 2, 
+                shadowColor: '#000', 
+                shadowOpacity: 0.2,
+                width: 140, 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                minHeight: 60, 
+              }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 14, textAlign: 'center' }}>{listing.title}</Text>
+              <Text style={{ color: 'green', fontWeight: 'bold', fontSize: 12, textAlign: 'center' }}>${listing.price}</Text>
             </View>
-          ) : null}
+          </Callout>
         </Marker>
       ))}
     </MapView>
