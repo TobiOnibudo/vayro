@@ -34,7 +34,7 @@ export default function SellScreen() {
 
           {/* Ask Gemini Price Suggestion Button */}
           <TouchableOpacity 
-            onPress={() => router.push('/(price-suggestion)/take-picture')}
+            onPress={() => router.push('/(price-suggestion)/image-upload')}
             style={tw`p-2 bg-blue-500 rounded-full`}
           >
             <MaterialIcons name="price-check" size={24} color="white" />
