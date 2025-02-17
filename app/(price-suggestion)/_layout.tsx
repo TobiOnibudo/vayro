@@ -13,7 +13,7 @@ export default function PriceSuggestionLayout() {
         title: "",
         headerBackVisible: false
       }} />
-      <Stack.Screen name="request-price-form" options={{ 
+      <Stack.Screen name="request-price" options={{ 
         headerShown: false,
         title: "",
         headerBackVisible: false

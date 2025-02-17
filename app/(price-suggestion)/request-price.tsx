@@ -12,7 +12,7 @@ import { useScrollToInput } from "@/hooks/useScrollToInput";
 const ConditionPickerValues = ["", ...Object.values(CONDITIONS_VALUES)];
 const CategoryPickerValues = ["", ...Object.values(CATEGORIES_VALUES)];
 
-export default function RequestPriceForm() {
+export default function RequestPriceScreen() {
   const router = useRouter();
   const { control, handleSubmit, formState: { errors } } = useForm<FormSchema>({
     resolver: zodResolver(schema),
