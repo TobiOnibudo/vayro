@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, Modal, Pressable } from "react-native";
+import { View, Text, TextInput, Modal, Pressable, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Picker } from "@react-native-picker/picker";
@@ -6,7 +6,7 @@ import tw from "twrnc";
 import { useState } from "react";
 
 // Check `~/types/priceSuggestionFromSchema.ts for the types and schema
-import { schema, type FormSchema, CONDITIONS, CATEGORIES } from "@/types/priceSuggestionFromSchema";
+import { schema, type FormSchema, CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
 
 
 export default function RequestPriceForm() {
@@ -21,188 +21,191 @@ export default function RequestPriceForm() {
   };
 
   return (
-    <View style={tw`p-4 bg-white min-h-full`}>
-      <Text style={tw`text-2xl font-bold mb-6 text-center text-gray-800`}>
-        Ask Gemini for Price Suggestion
-      </Text>
-      
-      <View style={tw`gap-4`}>
-        <Controller
-          control={control}
-          name="title"
-          render={({ field: { onChange, value } }) => (
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Title</Text>
-              <TextInput
-                style={tw`w-full p-3 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-gray-50`}
-                onChangeText={onChange}
-                value={value}
-                placeholder="Title"
-              />
-              {errors.title && (
-                <Text style={tw`text-red-500 text-sm mt-1`}>{errors.title.message}</Text>
-              )}
-            </View>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="description"
-          render={({ field: { onChange, value } }) => (
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Description</Text>
-              <TextInput
-                style={tw`w-full p-3 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-gray-50 h-24`}
-                onChangeText={onChange}
-                value={value}
-                placeholder="Description"
-                multiline
-                textAlignVertical="top"
-              />
-              {errors.description && (
-                <Text style={tw`text-red-500 text-sm mt-1`}>{errors.description.message}</Text>
-              )}
-            </View>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="condition"
-          render={({ field: { onChange, value } }) => (
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Condition</Text>
-              <Pressable
-                style={tw`w-full p-3 border ${errors.condition ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-gray-50`}
-                onPress={() => setShowConditionPicker(true)}
-              >
-                <Text>{value || 'Select condition'}</Text>
-              </Pressable>
-              {errors.condition && (
-                <Text style={tw`text-red-500 text-sm mt-1`}>{errors.condition.message}</Text>
-              )}
-              <Modal
-                visible={showConditionPicker}
-                transparent
-                animationType="slide"
-              >
-                <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
-                  <View style={tw`bg-white w-full`}>
-                    <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
-                      <Pressable
-                        onPress={() => setShowConditionPicker(false)}
-                        style={tw`px-4 py-2`}
-                      >
-                        <Text style={tw`text-blue-600 font-medium`}>Done</Text>
-                      </Pressable>
-                    </View>
-                    <Picker
-                      selectedValue={value}
-                      onValueChange={(itemValue) => {
-                        onChange(itemValue);
-                        setShowConditionPicker(false);
-                      }}
-                    >
-                      {Object.values(CONDITIONS).map((condition) => (
-                        <Picker.Item
-                          key={condition}
-                          label={condition.charAt(0).toUpperCase() + condition.slice(1)}
-                          value={condition}
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                </View>
-              </Modal>
-            </View>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="category"
-          render={({ field: { onChange, value } }) => (
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Category</Text>
-              <Pressable
-                style={tw`w-full p-3 border ${errors.category ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-gray-50`}
-                onPress={() => setShowCategoryPicker(true)}
-              >
-                <Text>{value || 'Select category'}</Text>
-              </Pressable>
-              {errors.category && (
-                <Text style={tw`text-red-500 text-sm mt-1`}>{errors.category.message}</Text>
-              )}
-              <Modal
-                visible={showCategoryPicker}
-                transparent
-                animationType="slide"
-              >
-                <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
-                  <View style={tw`bg-white w-full`}>
-                    <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
-                      <Pressable
-                        onPress={() => setShowCategoryPicker(false)}
-                        style={tw`px-4 py-2`}
-                      >
-                        <Text style={tw`text-blue-600 font-medium`}>Done</Text>
-                      </Pressable>
-                    </View>
-                    <Picker
-                      selectedValue={value}
-                      onValueChange={(itemValue) => {
-                        onChange(itemValue);
-                        setShowCategoryPicker(false);
-                      }}
-                    >
-                      {Object.values(CATEGORIES).map((category) => (
-                        <Picker.Item
-                          key={category}
-                          label={category.charAt(0).toUpperCase() + category.slice(1)}
-                          value={category}
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                </View>
-              </Modal>
-            </View>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="boughtInYear"
-          render={({ field: { onChange, value } }) => (
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Year Bought</Text>
-              <TextInput
-                style={tw`w-full p-3 border ${errors.boughtInYear ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-gray-50`}
-                onChangeText={(text) => {
-                  const numericValue = text.replace(/[^0-9]/g, '');
-                  onChange(numericValue ? parseInt(numericValue) : undefined);
-                }}
-                value={value?.toString()}
-                placeholder="Year bought"
-                keyboardType="number-pad"
-                maxLength={4}
-              />
-              {errors.boughtInYear && (
-                <Text style={tw`text-red-500 text-sm mt-1`}>{errors.boughtInYear.message}</Text>
-              )}
-            </View>
-          )}
-        />
-
-        <View style={tw`mt-6`}>
-          <Button 
-            title="Request Price" 
-            onPress={handleSubmit(onSubmit)}
-            color="#4F46E5" // Indigo-600 color
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={tw`p-4 bg-neutral-100 min-h-full`}>
+        <Text style={tw`text-2xl font-bold mb-6 text-center text-gray-800`}>
+          Ask Gemini
+        </Text>
+        
+        <View style={tw`gap-4`}>
+          <Controller
+            control={control}
+            name="title"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Title</Text>
+                <TextInput
+                  style={tw`w-full p-3 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-white`}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="Title"
+                />
+                {errors.title && (
+                  <Text style={tw`text-red-500 text-sm mt-1`}>{errors.title.message}</Text>
+                )}
+              </View>
+            )}
           />
+
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Description</Text>
+                <TextInput
+                  style={tw`w-full p-3 border ${errors.description ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-white h-24`}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="Description"
+                  multiline
+                  textAlignVertical="top"
+                />
+                {errors.description && (
+                  <Text style={tw`text-red-500 text-sm mt-1`}>{errors.description.message}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="condition"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Condition</Text>
+                <Pressable
+                  style={tw`w-full p-3 border ${errors.condition ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-white`}
+                  onPress={() => setShowConditionPicker(true)}
+                >
+                  <Text>{value || 'Select condition'}</Text>
+                </Pressable>
+                {errors.condition && (
+                  <Text style={tw`text-red-500 text-sm mt-1`}>{errors.condition.message}</Text>
+                )}
+                <Modal
+                  visible={showConditionPicker}
+                  transparent
+                  animationType="slide"
+                >
+                  <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
+                    <View style={tw`bg-white w-full`}>
+                      <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
+                        <Pressable
+                          onPress={() => setShowConditionPicker(false)}
+                          style={tw`px-4 py-2`}
+                        >
+                          <Text style={tw`text-blue-600 font-medium`}>Done</Text>
+                        </Pressable>
+                      </View>
+                      <Picker
+                        selectedValue={value}
+                        onValueChange={(itemValue) => {
+                          onChange(itemValue);
+                          setShowConditionPicker(false);
+                        }}
+                      >
+                        {Object.values(CONDITIONS_VALUES).map((condition) => (
+                          <Picker.Item
+                            key={condition}
+                            label={condition.charAt(0).toUpperCase() + condition.slice(1)}
+                            value={condition}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                  </View>
+                </Modal>
+              </View>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="category"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Category</Text>
+                <Pressable
+                  style={tw`w-full p-3 border ${errors.category ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-white`}
+                  onPress={() => setShowCategoryPicker(true)}
+                >
+                  <Text>{value || 'Select category'}</Text>
+                </Pressable>
+                {errors.category && (
+                  <Text style={tw`text-red-500 text-sm mt-1`}>{errors.category.message}</Text>
+                )}
+                <Modal
+                  visible={showCategoryPicker}
+                  transparent
+                  animationType="slide"
+                >
+                  <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
+                    <View style={tw`bg-white w-full`}>
+                      <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
+                        <Pressable
+                          onPress={() => setShowCategoryPicker(false)}
+                          style={tw`px-4 py-2`}
+                        >
+                          <Text style={tw`text-blue-600 font-medium`}>Done</Text>
+                        </Pressable>
+                      </View>
+                      <Picker
+                        selectedValue={value}
+                        onValueChange={(itemValue) => {
+                          onChange(itemValue);
+                          setShowCategoryPicker(false);
+                        }}
+                      >
+                        {Object.values(CATEGORIES_VALUES).map((category) => (
+                          <Picker.Item
+                            key={category}
+                            label={category.charAt(0).toUpperCase() + category.slice(1)}
+                            value={category}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                  </View>
+                </Modal>
+              </View>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="boughtInYear"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Year Bought</Text>
+                <TextInput
+                  style={tw`w-full p-3 border ${errors.boughtInYear ? 'border-red-500' : 'border-gray-300'} rounded-lg bg-white`}
+                  onChangeText={(text) => {
+                    const numericValue = text.replace(/[^0-9]/g, '');
+                    onChange(numericValue ? parseInt(numericValue) : undefined);
+                  }}
+                  value={value?.toString()}
+                  placeholder="Year bought"
+                  keyboardType="number-pad"
+                  maxLength={4}
+                />
+                {errors.boughtInYear && (
+                  <Text style={tw`text-red-500 text-sm mt-1`}>{errors.boughtInYear.message}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          <View style={tw`mt-6`}>
+            <TouchableOpacity
+              style={tw`bg-[#ACA592] p-3 rounded-lg`}
+              onPress={handleSubmit(onSubmit)}
+            >
+              <Text style={tw`text-white text-center font-medium`}>Request Price</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
