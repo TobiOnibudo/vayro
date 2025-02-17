@@ -10,6 +10,7 @@ import { ScrollView } from "react-native";
 export function useScrollToInput() {
   const scrollViewRef = useRef<ScrollView>(null);
 
+  // params: y is the y coordinate to scroll to
   const scrollToInput = (y: number) => {
     scrollViewRef.current?.scrollTo({ y: y, animated: true });
   };

@@ -14,9 +14,12 @@ const CategoryPickerValues = ["", ...Object.values(CATEGORIES_VALUES)];
 
 export default function RequestPriceScreen() {
   const router = useRouter();
+
+  //useForm is a hook that allows you to manage the form state and validation with Zod
   const { control, handleSubmit, formState: { errors } } = useForm<FormSchema>({
     resolver: zodResolver(schema),
   });
+
   const [showConditionPicker, setShowConditionPicker] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const { scrollToInput, scrollViewRef } = useScrollToInput();
@@ -27,7 +30,7 @@ export default function RequestPriceScreen() {
       params: { data: JSON.stringify(data) },
     });
   };
-
+ 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}

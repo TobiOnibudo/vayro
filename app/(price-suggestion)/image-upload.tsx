@@ -1,3 +1,5 @@
+//TODO: Implement image upload, pause for now to reduce merge conflicts
+
 import * as React from 'react';
 import { View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';

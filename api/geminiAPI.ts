@@ -3,6 +3,17 @@ import { type FormSchema } from "@/types/priceSuggestionFormSchema";
 import { z } from "zod";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
+//NOTE: Public since we don't have a backend
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY is not set");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
+
+//NOTE: learn more about Google Generative AI structured output: https://ai.google.dev/gemini-api/docs/structured-output?lang=node
+
 const schema = {
   type: SchemaType.OBJECT,
   properties: {
@@ -12,15 +23,7 @@ const schema = {
   required: ["price", "reason"],
 };
 
-//NOTE: Public since we don't have a backend
-const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-
-if (!apiKey) {
-  throw new Error("GEMINI_API_KEY is not set");
-}
-
-const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ 
+const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
   generationConfig: {
     responseMimeType: "application/json",
@@ -28,13 +31,15 @@ const model = genAI.getGenerativeModel({
   },
 });
 
-export const geminiResponseSchema = z.object({
+// Create a zod schema to validate the response from Gemini
+const geminiResponseSchema = z.object({
   price: z.number(),
   reason: z.string(),
 });
 
-export type GeminiResponse = z.infer<typeof geminiResponseSchema>;
+type GeminiResponse = z.infer<typeof geminiResponseSchema>;
 
+// API response type
 export type APIGeminiResponse = {
   success: boolean;
   code: number;
@@ -46,26 +51,29 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
   const { title, description, condition, category, boughtInYear } = data;
 
   const prompt = `
-  You are a helpful assistant that can help me estimate the price of an item.
+  You are a knowledgeable pricing expert specializing in item evaluations and market trends. 
 
-  Here is the information about the item:
+  ### Instructions:
+  Please estimate the value of an item based on the details provided below. Your response should be a JSON object that includes both the estimated price and a well-reasoned explanation for that price.
+
+  ### Item Details:
   - Title: ${title}
   - Description: ${description}
   - Condition: ${condition}
   - Category: ${category}
   - Year Bought: ${boughtInYear}
 
-  You then return a JSON object with the price and the reasoning for the price.
-  For the reasoning, you should consider the condition of the item, the category, and the year it was bought. This should be about 150 words.
-
-  Please estimate the price of the item in the following format:
+  ### Output Format:
+  Your JSON response should follow this structure:
   {
     "price": <number>,
     "reason": <string>
   }
 
-  Please be concise and to the point.
-  Return the JSON object, nothing else.
+  ### Additional Details:
+  - The reasoning should be approximately 150 words and must address how the item's condition, category, and the year of purchase influence its current market value.
+  - Please ensure your response is straightforward and concise, providing only the JSON object without any extra commentary or embellishments.
+
   `;
 
   try {
@@ -74,7 +82,7 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
 
     if (!result) {
       return {
-        success: false, 
+        success: false,
         code: 500,
         data: null,
         error: "Failed to get response from Gemini",
@@ -99,7 +107,7 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
       code: 200,
       data: validationResult.data,
     };
-    
+
   } catch (error) {
     return {
       success: false,
