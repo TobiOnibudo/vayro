@@ -1,5 +1,5 @@
 import { SafeAreaView, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import { FeedCard } from '@/components/FeedCard';
 import { useRouter } from 'expo-router';
@@ -31,6 +31,14 @@ export default function SellScreen() {
           <View style={tw`flex-row items-center`}>
             <Text style={tw`text-xl font-bold text-gray-800`}>Sell</Text>
           </View>
+
+          {/* Ask Gemini Price Suggestion Button */}
+          <TouchableOpacity 
+            onPress={() => router.push('/(price-suggestion)/take-picture')}
+            style={tw`p-2 bg-blue-500 rounded-full`}
+          >
+            <MaterialIcons name="price-check" size={24} color="white" />
+          </TouchableOpacity>
           
           {/* Home Button */}
           <TouchableOpacity 
