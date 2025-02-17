@@ -11,13 +11,25 @@ import { database } from '@/config/firebaseConfig';
 
 export default function LoginPage() {
   const router = useRouter();
-
   const [credentials, setCredentials] = useState<LoginUser>({
     email: '',
     password: '',
   });
+  const [error, setError] = useState<string | null>(null); // State for error messages
 
   const handleLogin = async () => {
+    // Validate email and password
+    if (!credentials.email || !credentials.password) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(credentials.email)) {
+      setError("Invalid email format.");
+      return;
+    }
+
     try {
       // Authenticate user
       const userCredential = await signInWithEmailAndPassword(
@@ -59,16 +71,13 @@ export default function LoginPage() {
         // Handle the case where user data doesn't exist
       }
     } catch (error: any) {
-      console.error("Login error:", error.message);
-      // Here you might want to add error handling UI
-      // For example, showing an alert or error message to the user
+      setError("Login error: " + error.message);
     }
   };
 
   return (
     <View style={tw`flex-1 bg-gray-100 px-7`}>
       <SafeAreaView>
-
         {/* Logo and Brand */}
         <View style={tw`flex-row items-center justify-center mt-25`}>
           <Image
@@ -110,18 +119,19 @@ export default function LoginPage() {
           </View>
         </View>
 
+        {/* Error Message */}
+        {error && <Text style={tw`text-red-500 text-center mb-4`}>{error}</Text>}
+
         {/* Register Link */}
         <View style={tw`items-center mb-15`}>
           <TouchableOpacity onPress={() => router.push('/signup')}>
-          <Text style={[tw`underline`, { color: '#3f698d' }]}>Register/Sign Up</Text>
+            <Text style={[tw`underline`, { color: '#3f698d' }]}>Register/Sign Up</Text>
           </TouchableOpacity>
         </View>
-
 
         {/* Login Button */}
         <View style={tw`items-center`}>
           <TouchableOpacity
-            // HEX color value copied from Figma
             style={tw`justify-center items-center w-2/3 py-3 px-4 bg-[#ACA592] rounded-lg`}
             onPress={handleLogin}
             activeOpacity={0.8}
