@@ -17,17 +17,6 @@ export default function LoginPage() {
     password: '',
   });
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const userDataString = await AsyncStorage.getItem('userData');
-
-      // Auto login
-      if (userDataString) {
-        router.push('/')
-      }
-    };
-    loadUser();
-  }, []);
 
   const handleLogin = async () => {
     try {

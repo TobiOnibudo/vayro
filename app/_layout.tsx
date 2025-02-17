@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -22,8 +23,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     // TODO: Implement auth here ?
+    const loadUser = async () => {
+      const userDataString = await AsyncStorage.getItem('userData');
 
-    router.replace("/(auth)/login")
+      // Auto login
+      if (userDataString) {
+        router.push('/')
+      }else
+      {
+        router.replace("/(auth)/login")
+      }
+    };
+    loadUser();
+
     SplashScreen.hideAsync();
   }, []);
 
