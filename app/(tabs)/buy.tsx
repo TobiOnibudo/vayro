@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoggedInUser } from '@/types/userSchema';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { FeedCard } from '@/components/FeedCard';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { demoListings, Listing } from '@/data/demoListings';
@@ -13,6 +13,19 @@ import * as Location from 'expo-location';
 
 export default function BuyScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{
+      minPrice?: string;
+      maxPrice?: string;
+      itemTypes?: string;
+      radius?: string;
+    }>();
+
+  // Convert params to the correct types
+  const minPrice = params.minPrice ? Number(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
+  const radius = params.radius ? Number(params.radius) : undefined;
+  const itemTypes = params.itemTypes ?  String(params.itemTypes): undefined;
+
   const [user, setUser] = React.useState<LoggedInUser | null>(null);
   const bottomSpacing = useBottomTabSpacing();
   const [mapRegion, setMapRegion] = React.useState({
@@ -23,6 +36,46 @@ export default function BuyScreen() {
   });
   const [viewMode, setViewMode] = React.useState<'map' | 'list'>('map');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [priceRange, setPriceRange] = React.useState([0, 1000]);
+  let selectedTypes = itemTypes ? itemTypes.split(',') : [];
+  // search listings 
+  const [listings, setListings] = useState<Listing[]>(demoListings)
+
+  // Set initial price range and selected types based on params
+  React.useEffect(() => {
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      setPriceRange([minPrice, maxPrice]);
+    }
+    if (itemTypes) {
+      selectedTypes = itemTypes.split(',');
+    }
+    let filteredListings = demoListings; // Start with all listings
+
+    // Apply search query filter
+    if (searchQuery) {
+      filteredListings = filteredListings.filter(listing =>
+        listing.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply price and type filters only if minPrice, maxPrice, or itemTypes are defined
+    if (minPrice !== undefined || maxPrice !== undefined || itemTypes) {
+      filteredListings = filteredListings.filter(listing => {
+        const withinPriceRange =
+          (minPrice === undefined || listing.price >= minPrice) &&
+          (maxPrice === undefined || listing.price <= maxPrice);
+
+        const matchesType =
+          !itemTypes || itemTypes === '' || selectedTypes.includes(listing.type.toLowerCase());
+
+        return withinPriceRange && matchesType;
+      });
+    }
+
+    console.log("Filtered Listings Count:", filteredListings.length);
+    setListings(filteredListings);
+  }, [minPrice, maxPrice, itemTypes, searchQuery]);
+  
 
   useEffect(() => {
     const loadUser = async () => {
@@ -69,7 +122,7 @@ export default function BuyScreen() {
 
   const renderListView = () => (
     <FlatList
-      data={demoListings}
+      data={listings}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <FeedCard
@@ -81,7 +134,6 @@ export default function BuyScreen() {
           description={item.description}
         />
       )}
-     
     />
   );
 
@@ -98,7 +150,7 @@ export default function BuyScreen() {
       }}
       showsUserLocation={true}
     >
-      {demoListings.map((listing: Listing) => (
+      {listings.map((listing: Listing) => (
         <Marker
           key={listing.id}
           coordinate={listing.location}

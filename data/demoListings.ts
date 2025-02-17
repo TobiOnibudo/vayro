@@ -12,6 +12,7 @@ export interface Listing {
     name: string;
     email: string;
   };
+  type: string;
 }
 
 export const demoListings: Listing[] = [
@@ -28,7 +29,8 @@ export const demoListings: Listing[] = [
     seller: {
       name: 'John Doe',
       email: 'john.doe@example.com'
-    }
+    },
+    type: 'Furniture'
   },
   {
     id: '2',
@@ -43,7 +45,8 @@ export const demoListings: Listing[] = [
     seller: {
       name: 'Jane Smith',
       email: 'jane.smith@example.com'
-    }
+    },
+    type: 'Electronics'
   },
   // Add more demo items with different locations as needed
   {
@@ -59,7 +62,8 @@ export const demoListings: Listing[] = [
     seller: {
       name: 'Alice Johnson',
       email: 'alice.johnson@example.com'
-    }
+    },
+    type: 'Books'
   },
   {
     id: '4',
@@ -74,6 +78,7 @@ export const demoListings: Listing[] = [
     seller: {
       name: 'Bob Williams',
       email: 'bob.williams@example.com'
-    }
+    },
+    type: 'Clothing'
   },
 ]; 

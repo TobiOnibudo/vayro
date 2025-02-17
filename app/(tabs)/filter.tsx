@@ -5,11 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import Slider from '@react-native-community/slider';
 import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
+import { CATEGORIES_VALUES } from '@/types/priceSuggestionFormSchema';
 
-const itemTypes = [
-  'Furniture', 'Electronics', 'Clothing', 'Books', 
-  'Sports', 'Art', 'Jewelry', 'Other'
-];
+const itemTypes = Object.keys(CATEGORIES_VALUES);
 
 export default function FilterScreen() {
   const router = useRouter();
@@ -89,10 +87,8 @@ export default function FilterScreen() {
                   }`}
                   onPress={() => toggleItemType(type)}
                 >
-                  <Text style={tw`${
-                    selectedTypes.includes(type) ? 'text-white' : 'text-gray-800'
-                  }`}>
-                    {type}
+                  <Text style={tw`${selectedTypes.includes(type) ? 'text-white' : 'text-gray-800'}`}>
+                    {CATEGORIES_VALUES[type as keyof typeof CATEGORIES_VALUES]}
                   </Text>
                 </TouchableOpacity>
               ))}
