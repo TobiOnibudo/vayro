@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
 import { useState, useRef } from "react";
+import { getPriceSuggestion } from "@/api/geminiAPI";
 
 // Check `~/types/priceSuggestionFromSchema.ts` for the types and schema
 import { schema, type FormSchema, CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
@@ -17,9 +18,12 @@ export default function RequestPriceForm() {
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const onSubmit = (data: FormSchema) => {
-    console.log(data);
+  const onSubmit = async (data: FormSchema) => {
+    const result = await getPriceSuggestion(data);
+    console.log(result);
   };
+
+
 
   const scrollToInput = (y: number) => {
     scrollViewRef.current?.scrollTo({ y: y, animated: true });
