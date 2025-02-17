@@ -41,6 +41,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="dollarsign.circle.fill" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="filter"
+        options={{
+          title: 'Filter',
+          href: null, 
+          headerShown: false,
+        }}
+      />
     </Tabs>
   );
 }

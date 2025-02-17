@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -71,20 +71,21 @@ export default function BuyScreen() {
   const [searchQuery, setSearchQuery] = React.useState('');
 
   const renderListView = () => (
-    <ScrollView 
-      style={tw`flex-1`}
-      contentContainerStyle={tw`pb-[${bottomSpacing}px]`}
-    >
-      {demoListings.map((listing) => (
-        <FeedCard 
-          key={listing.id}
-          title={listing.title}
-          price={listing.price}
-          image={listing.image}
-          seller={listing.seller}
+    <FlatList
+      data={demoListings}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <FeedCard
+          listingId={item.id}
+          title={item.title}
+          price={item.price}
+          image={item.image}
+          seller={item.seller}
+          description={item.description}
         />
-      ))}
-    </ScrollView>
+      )}
+     
+    />
   );
 
   const renderMapView = () => (
