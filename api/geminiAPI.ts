@@ -1,16 +1,16 @@
 // Check `~/types/priceSuggestionFromSchema.ts` for the types and schema
 import { type FormSchema } from "@/types/priceSuggestionFormSchema";
 import { z } from "zod";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
-function extractJSONFromText(text: string) {
-  const jsonMatch = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
-  if (!jsonMatch) {
-    console.log("No JSON found in response");
-    return null;
-  }
-  return JSON.parse(jsonMatch[1]);
-}
+const schema = {
+  type: SchemaType.OBJECT,
+  properties: {
+    price: { type: SchemaType.NUMBER },
+    reason: { type: SchemaType.STRING },
+  },
+  required: ["price", "reason"],
+};
 
 //NOTE: Public since we don't have a backend
 const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
@@ -20,7 +20,13 @@ if (!apiKey) {
 }
 
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash",
+  generationConfig: {
+    responseMimeType: "application/json",
+    responseSchema: schema,
+  },
+});
 
 export const geminiResponseSchema = z.object({
   price: z.number(),
@@ -62,33 +68,44 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
   Return the JSON object, nothing else.
   `;
 
-  const response = await model.generateContent(prompt);
-  const text = response.response.text();
-  const result = extractJSONFromText(text);
+  try {
+    const response = await model.generateContent(prompt);
+    const result = response.response.text();
 
-  if (!result) {
+    if (!result) {
+      return {
+        success: false, 
+        code: 500,
+        data: null,
+        error: "Failed to get response from Gemini",
+      };
+    }
+
+    const parsedResult = JSON.parse(result);
+
+    const validationResult = geminiResponseSchema.safeParse(parsedResult);
+
+    if (!validationResult.success) {
+      return {
+        success: false,
+        code: 500,
+        data: null,
+        error: "Invalid response format from Gemini",
+      };
+    }
+
     return {
-      success: false, 
-      code: 500,
-      data: null,
-      error: "Failed to extract JSON from response",
+      success: true,
+      code: 200,
+      data: validationResult.data,
     };
-  }
-
-  const validationResult = geminiResponseSchema.safeParse(result);
-
-  if (!validationResult.success) {
+    
+  } catch (error) {
     return {
       success: false,
       code: 500,
       data: null,
-      error: "Invalid response from Gemini",
+      error: error instanceof Error ? error.message : "Unknown error occurred",
     };
   }
-
-  return {
-    success: true,
-    code: 200,
-    data: validationResult.data,
-  };
 }
