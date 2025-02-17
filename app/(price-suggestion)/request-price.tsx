@@ -133,6 +133,7 @@ export default function RequestPriceScreen() {
                                 key={condition}
                                 label={condition.charAt(0).toUpperCase() + condition.slice(1)}
                                 value={condition}
+                                color="black"
                               />
                             ))}
                           </Picker>
@@ -184,6 +185,7 @@ export default function RequestPriceScreen() {
                                 key={category}
                                 label={category.charAt(0).toUpperCase() + category.slice(1)}
                                 value={category}
+                                color="black"
                               />
                             ))}
                           </Picker>
