@@ -39,6 +39,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(settings)" options={{ headerShown: false }} />
         <Stack.Screen name="(price-suggestion)" options={{ 
           title: "",
           headerBackTitle: "Sell Page"
