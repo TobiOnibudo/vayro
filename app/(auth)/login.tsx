@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -16,6 +16,7 @@ export default function LoginPage() {
     password: '',
   });
   const [error, setError] = useState<string | null>(null); // State for error messages
+
 
   const handleLogin = async () => {
     // Validate email and password
