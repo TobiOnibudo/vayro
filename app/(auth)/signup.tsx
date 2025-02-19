@@ -9,6 +9,7 @@ import { createUserWithEmailAndPassword } from '@firebase/auth';
 import { ref, set } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';  // Make sure database is exported from your config
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getCoordinates } from '@/api/locationAPI';
 
 export default function SignUp() {
     const router = useRouter();
@@ -44,6 +45,10 @@ export default function SignUp() {
 
         try {
             console.log("user: "+ userData)
+
+            // get geolocation data from address
+            const userLocation = await getCoordinates(userData.address)
+
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 userData.email,
@@ -57,6 +62,8 @@ export default function SignUp() {
                 username: userData.username,
                 email: userData.email,
                 address: userData.address,
+                lat: userLocation?.lat,
+                lon: userLocation?.lon,
                 phone: userData.phone,
                 createdAt: new Date().toISOString(),
             }

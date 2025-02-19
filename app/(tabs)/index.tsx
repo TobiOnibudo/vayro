@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoggedInUser } from '@/types/userSchema';
 import { FeedCard } from '@/components/FeedCard';
 import { useRouter } from 'expo-router';
-import { auth } from '@/config/firebaseConfig';
+
 
 export default function HomeScreen() {
   const router = useRouter();
