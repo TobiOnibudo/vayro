@@ -12,7 +12,7 @@ interface ReverseGeocodeResponse {
 // Function to get coordinates from an address
 export const getCoordinates = async (address: string): Promise<{ lat: number; lon: number } | null> => {
   try {
-    const response = await axios.get<GeocodeResponse[]>('https://nominatim.openstreetmap.org/search', {
+    const response = await axios.get<GeocodeResponse[]>(process.env.EXPO_PUBLIC_LOCATION_API_URL, {
       params: {
         q: address,
         format: 'jsonv2',
