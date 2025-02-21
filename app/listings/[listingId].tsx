@@ -19,7 +19,7 @@ export default function ListingDetailPage() {
 
   useEffect( () => {
     const getListing = async () => {
-      const localListing = demoListings.find(item => item.id === listingId);
+      const localListing = demoListings.find(item => item.lid === listingId);
       if (localListing) 
         {
           setListing(localListing)

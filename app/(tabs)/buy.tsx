@@ -123,13 +123,13 @@ export default function BuyScreen() {
   const renderListView = () => (
     <FlatList
       data={listings}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.lid}
       renderItem={({ item }) => (
         <FeedCard
-          listingId={item.id}
+          listingId={item.lid}
           title={item.title}
           price={item.price}
-          image={item.image}
+          image={item.imageUrl}
           seller={item.seller}
           description={item.description}
         />
@@ -152,12 +152,12 @@ export default function BuyScreen() {
     >
       {listings.map((listing: Listing) => (
         <Marker
-          key={listing.id}
+          key={listing.lid}
           coordinate={listing.location}
         >
           <Callout onPress={() => {
-              console.log("Navigating to listing ID:", listing.id); 
-              router.push(`/listings/${listing.id}`);
+              console.log("Navigating to listing ID:", listing.lid); 
+              router.push(`/listings/${listing.lid}`);
             }}>
             <View style={{ 
                 backgroundColor: 'white', 

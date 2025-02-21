@@ -1,5 +1,5 @@
 export interface Listing {
-  id: string;
+  lid: string;
   title: string;
   price: number;
   description: string;
@@ -18,7 +18,7 @@ export interface Listing {
 
 export const demoListings: Listing[] = [
   {
-    id: '1',
+    lid: '1',
     title: 'Vintage Chair',
     price: 150,
     description: 'Beautiful vintage wooden chair in excellent condition. Perfect for your living room!',
@@ -35,7 +35,7 @@ export const demoListings: Listing[] = [
     type: 'Furniture'
   },
   {
-    id: '2',
+    lid: '2',
     title: 'Modern Lamp',
     price: 75,
     description: 'Contemporary desk lamp with adjustable brightness and sleek design.',
@@ -52,7 +52,7 @@ export const demoListings: Listing[] = [
     type: 'Electronics'
   },
   {
-    id: '3',
+    lid: '3',
     title: 'Antique Book Collection',
     price: 250,
     description: 'Rare collection of antique books, perfect for collectors.',
@@ -69,7 +69,7 @@ export const demoListings: Listing[] = [
     type: 'Books'
   },
   {
-    id: '4',
+    lid: '4',
     title: 'Leather Messenger Bag',
     price: 120,
     description: 'Stylish and durable leather messenger bag, ideal for everyday use.',

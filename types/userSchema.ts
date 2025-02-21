@@ -15,6 +15,7 @@ export interface SignUpUser {
 
 
 export interface LoggedInUser{
+  uid: string;
   firstName: string;
   lastName: string;
   username: string;
