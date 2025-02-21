@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, ScrollView } from 'react-native';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
-import { SignUpUser} from '@/types/userSchema'; // Assume this type exists
+import { SignUpUser } from '@/types/userSchema'; // Assume this type exists
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '@/config/firebaseConfig';
 import { createUserWithEmailAndPassword } from '@firebase/auth';
 import { ref, set } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';  // Make sure database is exported from your config
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
+import { getCoordinates } from '@/api/locationAPI';
 
 export default function SignUp() {
     const router = useRouter();
-
     const [userData, setUserData] = useState<SignUpUser>({
         firstName: '',
         lastName: '',
@@ -24,45 +22,96 @@ export default function SignUp() {
         address: '',
         phone: '',
     });
+    const [error, setError] = useState<string | null>(null); // State for error messages
+    const [fieldError, setFieldError] = useState<{ [key: string]: string | null }>({}); // State for field-specific error messages
 
-    
-  const handleSignUp = async () => {
-    try {
-        console.log("user: "+ userData)
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        userData.email,
-        userData.password
-      );
-      console.log(userCredential)
-      const user = userCredential.user;
-      const userDetails = {
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        username: userData.username,
-        email: userData.email,
-        address: userData.address,
-        phone: userData.phone,
-        createdAt: new Date().toISOString(),
-      }
-      
-      // Save user data to Realtime Database
-      await set(ref(database, '/users/' + user.uid), userDetails );
+    const handleSignUp = async () => {
+        // Validate email, password, and other fields
+        if (!userData.email || !userData.password || !userData.firstName || !userData.lastName) {
+            setError("All fields are required.");
+            return;
+        }
 
-      // Save essential user data to AsyncStorage
-      await AsyncStorage.setItem('userData', JSON.stringify(userDetails));
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(userData.email)) {
+            setError("Invalid email format.");
+            return;
+        }
 
-      console.log("User registered and data saved successfully");
-      router.push('/');
-    } catch (error: any) {
-      console.error("Signup error:", error.message);
-      // Add error handling UI here
-    }
-  };
+        if (userData.password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            return;
+        }
+
+        try {
+            console.log("user: "+ userData)
+
+            // get geolocation data from address
+            const userLocation = await getCoordinates(userData.address)
+
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                userData.email,
+                userData.password
+            );
+            console.log(userCredential)
+            const user = userCredential.user;
+            const userDetails = {
+                firstName: userData.firstName,
+                lastName: userData.lastName,
+                username: userData.username,
+                email: userData.email,
+                address: userData.address,
+                lat: userLocation?.lat,
+                lon: userLocation?.lon,
+                phone: userData.phone,
+                createdAt: new Date().toISOString(),
+            }
+            
+            // Save user data to Realtime Database
+            await set(ref(database, '/users/' + user.uid), userDetails );
+
+            // Save essential user data to AsyncStorage
+            await AsyncStorage.setItem('userData', JSON.stringify(userDetails));
+
+            console.log("User registered and data saved successfully");
+            router.push('/');
+        } catch (error: any) {
+            console.error("Signup error:", error.message);
+            setError("Signup error: " + error.message);
+        }
+    };
+
+    const validateField = (field: string) => {
+        if (field === 'Email') {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(userData.email)) {
+                setFieldError(prev => ({ ...prev, email: "Invalid email format." }));
+            } else {
+                setFieldError(prev => ({ ...prev, email: null })); // Clear error if valid
+            }
+        } else if (field === 'Password') {
+            if (userData.password.length < 6) {
+                setFieldError(prev => ({ ...prev, password: "Password must be at least 6 characters long." }));
+            } else {
+                setFieldError(prev => ({ ...prev, password: null })); // Clear error if valid
+            }
+        } else if (field === 'Phone') {
+            const phonePattern = /^[0-9]{10}$/; // Example pattern for 10-digit phone numbers
+            if (!phonePattern.test(userData.phone)) {
+                setFieldError(prev => ({ ...prev, phone: "Invalid phone number format." }));
+            } else {
+                setFieldError(prev => ({ ...prev, phone: null })); // Clear error if valid
+            }
+        }
+    };
 
     return (
         <View style={tw`flex-1 bg-gray-100 px-7`}>
             <SafeAreaView>
+                {/* Error Message */}
+                {error && <Text style={tw`text-red-500 text-center mb-4`}>{error}</Text>}
+
                 {/* Back Button */}
                 <View style={tw`flex-row items-center mt-1`}>
                     <TouchableOpacity
@@ -71,7 +120,6 @@ export default function SignUp() {
                         <Ionicons name="arrow-back" size={18} color="white" />
                     </TouchableOpacity>
                 </View>
-
 
                 <Text style={[tw`text-7 mt-6`, { fontWeight: '200' }]}>Registration</Text>
 
@@ -94,7 +142,6 @@ export default function SignUp() {
                     />
                 </View>
                 <View style={tw`mt-10`}>
-
                     {/* Other Inputs */}
                     {['Username', 'Email', 'Password', 'Address', 'Phone'].map((field, index) => (
                         <View style={tw`shadow-md mb-12`} key={index}>
@@ -103,32 +150,30 @@ export default function SignUp() {
                                 placeholder={field}
                                 value={userData[field.toLowerCase() as keyof SignUpUser]}
                                 onChangeText={(text) =>
-                                  setUserData(prev => ({ ...prev, [field.toLowerCase()]: text }))
+                                    setUserData(prev => ({ ...prev, [field.toLowerCase()]: text }))
                                 }
                                 secureTextEntry={field === 'Password'}
                                 placeholderTextColor={tw.color('gray-500')}
                                 keyboardType={field === 'Email' ? 'email-address' : (field === 'Phone' ? 'phone-pad' : 'default')}
-                              />
+                                onBlur={() => validateField(field)}
+                            />
+                            {/* Field-Specific Error Message */}
+                            {fieldError[field.toLowerCase()] && (
+                                <Text style={tw`text-red-500 text-sm mt-1`}>{fieldError[field.toLowerCase()]}</Text>
+                            )}
                         </View>
                     ))}
-
-                    
                 </View>
                 {/* Register Button */}
                 <View style={tw`items-center mb-15`}>
                     <TouchableOpacity
-                    style={tw`h-12 justify-center items-center w-2/4 py-3 px-4 bg-[#ACA592] rounded-lg`}
-                    onPress={handleSignUp}
-                    activeOpacity={0.8}>
-                    <Text style={tw`text-white text-center text-4.6`}>Register</Text>
-                </TouchableOpacity>
-          </View>
-
+                        style={tw`h-12 justify-center items-center w-2/4 py-3 px-4 bg-[#ACA592] rounded-lg`}
+                        onPress={handleSignUp}
+                        activeOpacity={0.8}>
+                        <Text style={tw`text-white text-center text-4.6`}>Register</Text>
+                    </TouchableOpacity>
+                </View>
             </SafeAreaView>
         </View>
-
-
-
     );
-
 }
