@@ -24,3 +24,13 @@ export interface LoggedInUser{
   createdAt: string;
 }
 
+export interface userUpload {
+  title: string;
+  price: string; //change later
+  address: string;
+  city: string;
+  postal: string;
+  description: string;
+  url: string;
+}
+

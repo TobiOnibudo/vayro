@@ -49,6 +49,13 @@ export default function TabLayout() {
           headerShown: false,
         }}
       />
+      <Tabs.Screen
+        name="sellHistory"
+        options={{
+          title: 'SellHistory',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="scroll" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
