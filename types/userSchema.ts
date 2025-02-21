@@ -31,5 +31,6 @@ export interface userUpload {
   city: string;
   postal: string;
   description: string;
+  url: string;
 }
 
