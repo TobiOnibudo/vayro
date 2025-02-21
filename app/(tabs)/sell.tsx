@@ -7,7 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { ref, set } from 'firebase/database';
-import { database } from '@/config/firebaseConfig';
+import { auth, database } from '@/config/firebaseConfig';
 import React, { useState, useRef} from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -17,6 +17,7 @@ import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } f
 import 'react-native-get-random-values';
 import { v1 as uuidv1 } from 'uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { uploadImageToCloud } from '@/api/imageUploadAPI';
 
 
 //Notes: when switching screens, need to make sure to turn showCamera false
@@ -63,9 +64,15 @@ export default function TabTwoScreen() {
       setShowCamera(false);
       setPhoto(null);
 
+      const authUser = auth.currentUser 
+      if (photo)
+      {
+        const imageUrl = await uploadImageToCloud(photo) ?? ""
+        setData( {...uploadData,url: imageUrl })
+      }
+    
       //toDo: handle putting into firebase
       try {
-        console.log("user: " + uploadData);
         const listingDetails = {
           lid: uuidv1(),
           title: uploadData.title,
@@ -75,9 +82,11 @@ export default function TabTwoScreen() {
           postal: uploadData.postal,
           description: uploadData.description,
           url: uploadData.url,
-          createAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          uid: authUser?.uid
         }
 
+        console.log(`listingDetails : ${listingDetails}`)
         // Save upload to database
         await set(ref(database, '/listings/' + listingDetails.lid), listingDetails);
       } catch (error: any) {
@@ -111,10 +120,10 @@ export default function TabTwoScreen() {
     if (!permission.granted) {
       // Camera permissions are not granted yet.
       return (
-        <View>
-          <Text>We need your permission to show the camera</Text>
-          <Button onPress={requestPermission} title="grant permission" />
-        </View>
+        <View style={tw`flex-1 justify-center items-center p-4`}>
+      <Text style={tw`text-[#ACA592] text-center mb-4`}>We need your permission to show the camera</Text>
+      <Button onPress={requestPermission} title="Grant Permission" />
+    </View>
       );
     }
 
