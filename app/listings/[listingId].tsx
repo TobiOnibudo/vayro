@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import tw from 'twrnc';
 import { demoListings, Listing } from '@/data/demoListings';
 import { Ionicons } from '@expo/vector-icons';
 import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
+import { database } from '@/config/firebaseConfig';
+import { equalTo, get, orderByChild, query, ref } from 'firebase/database';
 
 export default function ListingDetailPage() {
   const router = useRouter();
@@ -12,7 +14,32 @@ export default function ListingDetailPage() {
   console.log(listingId)
 
   // Find the listing based on listingId
-  const listing: Listing | undefined = demoListings.find(item => item.id === listingId);
+  const [listing , setListing] = useState<Listing | null>()
+
+
+  useEffect( () => {
+    const getListing = async () => {
+      const localListing = demoListings.find(item => item.id === listingId);
+      if (localListing) 
+        {
+          setListing(localListing)
+          return 
+        }
+        
+      const listingsRef = ref(database,'listings/' + listingId)
+
+      const queryRef = query(listingsRef)
+
+      const snapshot = await get(queryRef)
+
+      if (snapshot.exists()) {
+        const data = snapshot.val(); 
+        setListing(data)
+      }
+    }
+    
+    getListing() 
+  },[])
 
   if (!listing) {
     return (
@@ -36,7 +63,7 @@ export default function ListingDetailPage() {
         </TouchableOpacity>
 
         {/* Listing Details */}
-        <Image source={{ uri: listing.image }} style={tw`w-full h-72 rounded-lg mb-4`} />
+        <Image source={{ uri: listing.imageUrl }} style={tw`w-full h-72 rounded-lg mb-4`} />
         <Text style={tw`text-2xl font-bold text-gray-800 mb-2`}>{listing.title}</Text>
         <Text style={tw`text-xl text-[#ACA592] font-bold mb-4`}>${listing.price}</Text>
         <Text style={tw`text-gray-700 mb-4`}>{listing.description}</Text>
