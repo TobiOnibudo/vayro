@@ -10,6 +10,8 @@ import MapView, { Marker, Callout } from 'react-native-maps';
 import { demoListings, Listing } from '@/data/demoListings';
 import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
 import * as Location from 'expo-location';
+import { get, off, query, ref } from 'firebase/database';
+import { database } from '@/config/firebaseConfig';
 
 export default function BuyScreen() {
   const router = useRouter();
@@ -26,31 +28,69 @@ export default function BuyScreen() {
   const radius = params.radius ? Number(params.radius) : undefined;
   const itemTypes = params.itemTypes ?  String(params.itemTypes): undefined;
 
-  const [user, setUser] = React.useState<LoggedInUser | null>(null);
+  const [user, setUser] = useState<LoggedInUser | null>(null);
   const bottomSpacing = useBottomTabSpacing();
-  const [mapRegion, setMapRegion] = React.useState({
+  const [mapRegion, setMapRegion] = useState({
     latitude: 44.6488, // Halifax Latitude
     longitude: -63.5752, // Halifax Longitude
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  const [viewMode, setViewMode] = React.useState<'map' | 'list'>('map');
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [priceRange, setPriceRange] = React.useState([0, 1000]);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState([0, 1000]);
   let selectedTypes = itemTypes ? itemTypes.split(',') : [];
   // search listings 
   const [listings, setListings] = useState<Listing[]>(demoListings)
 
+  const getUserListings = async () => {
+    try {
+      if(user) {
+        console.log(user.uid)
+      const listingsRef = ref(database,'listings')
+
+      const queryRef = query(listingsRef)
+
+      // Clears cached data
+      off(queryRef)
+      const snapshot = await get(queryRef)
+      if (snapshot.exists()) {
+        const data = snapshot.val() as Record<string, Listing>;
+        let listingData : Listing[] = Object.values(data)
+        
+        listingData = listingData.filter((listing) => {
+            return listing.seller?.uid !== user.uid
+        })
+        console.log(listingData)
+        console.log(listingData)
+        listingData = [...listingData, ...demoListings]
+        return listingData
+      }}}
+    catch (err) {
+    console.error('Error fetching data:', err);
+  }}
+
+  useEffect(() => {
+    const loadPage = async () => {
+    console.log('refresh')
+    const userListings = await getUserListings() ?? demoListings
+     setListings(userListings)
+  }
+  loadPage()
+  },[user])
+
   // Set initial price range and selected types based on params
-  React.useEffect(() => {
+  useEffect(() => {
+    
+    const filterListings = async () => { 
     if (minPrice !== undefined && maxPrice !== undefined) {
       setPriceRange([minPrice, maxPrice]);
     }
     if (itemTypes) {
       selectedTypes = itemTypes.split(',');
     }
-    let filteredListings = demoListings; // Start with all listings
-
+   
+    let filteredListings = await getUserListings()  ?? demoListings; // Start with all listings
     // Apply search query filter
     if (searchQuery) {
       filteredListings = filteredListings.filter(listing =>
@@ -61,12 +101,13 @@ export default function BuyScreen() {
     // Apply price and type filters only if minPrice, maxPrice, or itemTypes are defined
     if (minPrice !== undefined || maxPrice !== undefined || itemTypes) {
       filteredListings = filteredListings.filter(listing => {
+
         const withinPriceRange =
           (minPrice === undefined || listing.price >= minPrice) &&
           (maxPrice === undefined || listing.price <= maxPrice);
 
         const matchesType =
-          !itemTypes || itemTypes === '' || selectedTypes.includes(listing.type.toLowerCase());
+          !itemTypes || selectedTypes.includes(listing?.type.toLowerCase());
 
         return withinPriceRange && matchesType;
       });
@@ -74,6 +115,8 @@ export default function BuyScreen() {
 
     console.log("Filtered Listings Count:", filteredListings.length);
     setListings(filteredListings);
+  }
+  filterListings()
   }, [minPrice, maxPrice, itemTypes, searchQuery]);
   
 
