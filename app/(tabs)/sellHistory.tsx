@@ -9,11 +9,13 @@ import { FeedCard } from '@/components/FeedCard';
 import { equalTo, get, off, orderByChild, query, ref, remove } from 'firebase/database';
 import { auth, database } from '@/config/firebaseConfig';
 import { demoListings, Listing } from '@/data/demoListings';
+import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
 
 export default function SellHistoryScreen() {
   const router = useRouter();
   const [user, setUser] = React.useState<LoggedInUser | null>(null);
   const [listings, setListings] = useState<Listing[]>()
+  const bottomSpacing = useBottomTabSpacing();
 
   useEffect(() => {
     const getUserListings = async () => {
@@ -51,7 +53,7 @@ export default function SellHistoryScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-gray-50`}>
+    <SafeAreaView style={[tw`flex-1 bg-gray-50`,{marginBottom: bottomSpacing}]}>
       {/* Header with Logo, Search, and Home Button */}
       <View style={tw`px-4 pt-2 pb-4`}>
         {/* Logo and Brand */}

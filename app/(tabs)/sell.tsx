@@ -20,6 +20,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import * as Location from 'expo-location';
 import { getAddress, getCoordinates } from '@/api/locationAPI';
+import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
 
 
 //Notes: when switching screens, need to make sure to turn showCamera false
@@ -33,6 +34,7 @@ export default function SellScreen() {
   const [photo, setPhoto] = useState<string | null>(null);
   const cameraRef = useRef<CameraView | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const bottomSpacing = useBottomTabSpacing();
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -184,8 +186,8 @@ export default function SellScreen() {
     
 
   return (
-    <View style={tw`flex-1 bg-gray-100 px-7`}>
-    <SafeAreaView>
+    <View style={[tw`flex-1 bg-gray-100 px-7`,{marginBottom: bottomSpacing}]}>
+    <SafeAreaView >
         {/* Back Button*/}
           <View style={tw`px-4 pt-2 pb-4 flex-row justify-between`}>
               <TouchableOpacity

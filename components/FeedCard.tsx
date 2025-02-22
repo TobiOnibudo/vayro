@@ -33,7 +33,7 @@ export const FeedCard: React.FC<FeedCardProps> = ({ title, price, image, seller,
         <Text style={tw`text-xs text-gray-600 mb-1`} numberOfLines={2} ellipsizeMode='tail'>{description}</Text>
         <View style={tw`flex-row items-center justify-between mt-1`}>
           <Text style={tw`text-base font-bold text-[#ACA592]`}>${price}</Text>
-          <Text style={tw`text-xs text-gray-500`}> {seller ? 'Seller: {seller?.name ?? "Unknown" }' : ""}</Text>
+          <Text style={tw`text-xs text-gray-500`}> {seller ? `Seller: ${seller?.name ?? "Unknown" }` : ""}</Text>
         </View>
       </View>
     </TouchableOpacity>

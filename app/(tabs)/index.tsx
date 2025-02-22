@@ -9,14 +9,14 @@ import { useRouter } from 'expo-router';
 import { get, off, query, ref} from 'firebase/database';
 import { database } from '@/config/firebaseConfig';
 import { demoListings, Listing } from '@/data/demoListings';
+import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
 
 
 export default function HomeScreen() {
   const router = useRouter();
   const [user, setUser] = useState<LoggedInUser | null>(null);
-
-
   const [listings, setListings] = useState<Listing[]>(demoListings)
+  const bottomSpacing = useBottomTabSpacing();
 
   useEffect(() => {
     const getUserListings = async () => {
@@ -59,7 +59,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-gray-50`}>
+    <SafeAreaView style={[tw`flex-1 bg-gray-50`, { marginBottom: bottomSpacing }]}>
       {/* Header with Logo and Search */}
       <View style={tw`px-4 pt-2 pb-4 flex-row items-center justify-between`}>
         {/* Brand */}
