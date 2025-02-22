@@ -35,11 +35,12 @@ export default function HomeScreen() {
           let listingData : Listing[] = Object.values(data)
           
           listingData = listingData.filter((listing) => {
-            console.log(listing)
               return listing.seller?.uid !== user.uid
           })
+          console.log(listingData)
+          listingData = [...listingData, ...demoListings]
           console.log(listingData.length)
-          setListings([...listings,...listingData])
+          setListings(listingData)
         }}}
       catch (err) {
       console.error('Error fetching data:', err);
@@ -49,6 +50,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const loadUser = async () => {
+      console.log("user")
       const userDataString = await AsyncStorage.getItem('userData');
       if (userDataString) {
         const userData = JSON.parse(userDataString);
