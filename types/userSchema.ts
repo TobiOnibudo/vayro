@@ -32,5 +32,7 @@ export interface userUpload {
   postal: string;
   description: string;
   url: string;
+  latitude: number;
+  longitude: number;
 }
 

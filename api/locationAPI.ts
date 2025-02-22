@@ -6,13 +6,18 @@ interface GeocodeResponse {
 }
 
 interface ReverseGeocodeResponse {
+  address: {
+    [key: string]: string;
+  };
   display_name: string;
 }
 
+const locationUrl = process.env.EXPO_PUBLIC_LOCATION_API_URL ?? ""
+
 // Function to get coordinates from an address
-export const getCoordinates = async (address: string): Promise<{ lat: number; lon: number } | null> => {
+export const getCoordinates = async (address: string): Promise<{ latitude: number; longitude: number } | null> => {
   try {
-    const response = await axios.get<GeocodeResponse[]>(process.env.EXPO_PUBLIC_LOCATION_API_URL, {
+    const response = await axios.get<GeocodeResponse[]>(`${locationUrl}/search`, {
       params: {
         q: address,
         format: 'jsonv2',
@@ -25,7 +30,7 @@ export const getCoordinates = async (address: string): Promise<{ lat: number; lo
     if (response.data.length > 0) {
       const { lat, lon } = response.data[0];
       console.log(`Coordinates for ${address}:`, lat, lon);
-      return { lat: parseFloat(lat), lon: parseFloat(lon) };
+      return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
     } else {
       console.log('No results found.');
       return null;
@@ -37,24 +42,44 @@ export const getCoordinates = async (address: string): Promise<{ lat: number; lo
 };
 
 // Function to get an address from coordinates
-export const getAddress = async (lat: number, lon: number): Promise<string | null> => {
+export const getAddress = async (lat: number, lon: number): Promise<{ address: string | null, postalCode: string | null, city: string | null , displayName : string | null } | null> => {
   try {
-    const response = await axios.get<ReverseGeocodeResponse>('https://nominatim.openstreetmap.org/reverse', {
+    const response = await axios.get<ReverseGeocodeResponse>(`${locationUrl}/reverse`, {
       params: {
         lat,
         lon,
-        format: 'jsonv2',
+        format: 'json',  // Explicitly specifying the format
+        addressdetails: 1, // Include detailed address information
       },
       headers: {
-        'User-Agent': 'ReactNativeApp',
+        'User-Agent': 'ReactNativeApp', // Avoid API restrictions
       },
     });
 
-    console.log('Address:', response.data.display_name);
-    return response.data.display_name;
+    const address = response.data.address;
+    if (!address) {
+      return null; // Return null if there's no address
+    }
+    console.log(address)
+    // Extract address, postal code, and city
+    const formattedAddress = address.road ? `${address.house_number} ${address.road}` : 'Address not available';
+    const postalCode = address.postcode || null;
+    const city = address.city || null;
+    const displayName = response.data.display_name 
+    // Log the values for debugging
+    console.log('Formatted Address:', formattedAddress);
+    console.log('Postal Code:', postalCode);
+    console.log('City:', city);
+    console.log('Display Name:', displayName)
+
+    return {
+      address: formattedAddress,
+      postalCode,
+      city,
+      displayName,
+    };
   } catch (error) {
     console.error('Error fetching address:', error);
-    return null;
+    return null; // Return null in case of an error
   }
 };
-
