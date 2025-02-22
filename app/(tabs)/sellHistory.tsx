@@ -96,7 +96,7 @@ export default function SellHistoryScreen() {
           />
         )}
       />
-      : <></>}
+      : <View style={tw`flex-1 items-center justify-center`}> <Text style={tw`text-[#ACA592] text-lg`}> No History...</Text> </View>}
 
 
 
