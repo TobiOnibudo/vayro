@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, FlatList  } from 'react-native';
+import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,24 +20,27 @@ export default function SellHistoryScreen() {
   useEffect(() => {
     const getUserListings = async () => {
       try {
-        if(user) {
-        const listingsRef = ref(database,'listings')
-  
-        const queryRef = query(listingsRef,orderByChild('seller/uid'),equalTo(user?.uid))
-        off(queryRef) // Clears any cached data
-        const snapshot = await get(queryRef)
-        if (snapshot.exists()) {
-          const data = snapshot.val() as Record<string, Listing>;
-          // convert to list
-          const listingData : Listing[] = Object.values(data) 
-          console.log(listingData.length)
-          setListings(listingData)
-        }}}
+        if (user) {
+          const listingsRef = ref(database, 'listings')
+
+          const queryRef = query(listingsRef, orderByChild('seller/uid'), equalTo(user?.uid))
+          off(queryRef) // Clears any cached data
+          const snapshot = await get(queryRef)
+          if (snapshot.exists()) {
+            const data = snapshot.val() as Record<string, Listing>;
+            // convert to list
+            const listingData: Listing[] = Object.values(data)
+            console.log(listingData.length)
+            setListings(listingData)
+          }
+        }
+      }
       catch (err) {
-      console.error('Error fetching data:', err);
-    }}
+        console.error('Error fetching data:', err);
+      }
+    }
     getUserListings()
-  },[user])
+  }, [user])
 
 
   // Get user data??
@@ -53,7 +56,7 @@ export default function SellHistoryScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={[tw`flex-1 bg-gray-50`,{marginBottom: bottomSpacing}]}>
+    <SafeAreaView style={[tw`flex-1 bg-gray-50`, { marginBottom: bottomSpacing }]}>
       {/* Header with Logo, Search, and Home Button */}
       <View style={tw`px-4 pt-2 pb-4`}>
         {/* Logo and Brand */}
@@ -61,16 +64,16 @@ export default function SellHistoryScreen() {
           <View style={tw`flex-row items-center`}>
             <Text style={tw`text-xl font-bold text-gray-800`}>History</Text>
           </View>
-          
+
           {/* Home Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => router.push('/')}
             style={tw`p-2 bg-[#ACA592] rounded-full`}
           >
             <Ionicons name="home" size={24} color="white" />
           </TouchableOpacity>
         </View>
-        
+
         {/* Search Bar */}
         <View style={tw`flex-row items-center bg-white rounded-lg px-3 shadow-sm border border-gray-200`}>
           <Ionicons name="search" size={20} color="#666" />
@@ -81,24 +84,28 @@ export default function SellHistoryScreen() {
           />
         </View>
       </View>
-      {listings ? 
+      {listings ?
         <FlatList
-        data={listings}
-        keyExtractor={(item) => item.lid}
-        renderItem={({ item }) => (
-          <FeedCard
-            listingId={item.lid}
-            title={item.title}
-            price={item.price}
-            image={item.imageUrl}
-            seller={item.seller}
-            description={item.description}
-          />
-        )}
-      />
-      : <View style={tw`flex-1 items-center justify-center`}> <Text style={tw`text-[#ACA592] text-lg`}> No History...</Text> </View>}
-
-
+          data={listings}
+          keyExtractor={(item) => item.lid}
+          renderItem={({ item }) => (
+            <FeedCard
+              listingId={item.lid}
+              title={item.title}
+              price={item.price}
+              image={item.imageUrl}
+              seller={item.seller}
+              description={item.description}
+            />
+          )}
+        />
+        :
+        <View style={tw`flex-1 items-center justify-center`}>
+          <Text style={tw`text-[#ACA592] text-lg`}>
+            No History...
+          </Text>
+        </View>
+      }
 
     </SafeAreaView>
   );
