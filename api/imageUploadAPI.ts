@@ -12,7 +12,7 @@ export const uploadImageToCloud = async (imageUri: string): Promise<string | nul
 
     // Prepare form data
     const formData = new FormData();
-    console.log(process.env.EXPO_PUBIC_IMAGE_API_URL)
+    console.log(process.env.EXPO_PUBLIC_IMAGE_API_URL)
     formData.append("key", String(process.env.EXPO_PUBLIC_IMAGE_API_KEY));
     formData.append("image", base64Image);
 
@@ -23,8 +23,10 @@ export const uploadImageToCloud = async (imageUri: string): Promise<string | nul
       },
     });
 
+    console.log(response)
+
     // After upload, delete the local file
-    await FileSystem.deleteAsync(imageUri, { idempotent: true });
+    // await FileSystem.deleteAsync(imageUri, { idempotent: true });
 
     // Return the image URL
     return response.data.data.url;

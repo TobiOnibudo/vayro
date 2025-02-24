@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import Slider from '@react-native-community/slider';
 import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
-import { CATEGORIES_VALUES } from '@/types/priceSuggestionFormSchema';
+import { CATEGORIES_VALUES, Category } from '@/types/priceSuggestionFormSchema';
 
 const itemTypes = Object.keys(CATEGORIES_VALUES);
 
@@ -15,7 +15,7 @@ export default function FilterScreen() {
   const [selectedTypes, setSelectedTypes] = React.useState<string[]>([]);
   const [radius, setRadius] = React.useState(10); // km
   const bottomSpacing = useBottomTabSpacing();
-
+  const defaultCategories: Category[] = Object.keys(CATEGORIES_VALUES) as Category[];
   const toggleItemType = (type: string) => {
     if (selectedTypes.includes(type)) {
       setSelectedTypes(selectedTypes.filter(t => t !== type));
@@ -30,7 +30,7 @@ export default function FilterScreen() {
       params: {
         minPrice: priceRange[0],
         maxPrice: Math.round(priceRange[1]),
-        itemTypes: selectedTypes.length > 0 ? selectedTypes.join(',') : undefined,
+        itemTypes: selectedTypes.length > 0 ? selectedTypes.join(',') : defaultCategories.join(','),
         radius: Math.round(radius)
       }
     });

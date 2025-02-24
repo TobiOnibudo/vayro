@@ -57,13 +57,14 @@ export default function SignUp() {
             console.log(userCredential)
             const user = userCredential.user;
             const userDetails = {
+                uid : user?.uid,
                 firstName: userData.firstName,
                 lastName: userData.lastName,
                 username: userData.username,
                 email: userData.email,
                 address: userData.address,
-                lat: userLocation?.lat,
-                lon: userLocation?.lon,
+                lat: userLocation?.latitude,
+                lon: userLocation?.longitude,
                 phone: userData.phone,
                 createdAt: new Date().toISOString(),
             }

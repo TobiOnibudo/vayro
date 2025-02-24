@@ -20,10 +20,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import * as Location from 'expo-location';
 import { getAddress, getCoordinates } from '@/api/locationAPI';
+import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
+
 
 //Notes: when switching screens, need to make sure to turn showCamera false
 
-export default function TabTwoScreen() {
+export default function SellScreen() {
   const router = useRouter();
   const [user, setUser] = React.useState<LoggedInUser | null>(null);
   const [facing, setFacing] = useState<CameraType>('back');
@@ -32,6 +34,7 @@ export default function TabTwoScreen() {
   const [photo, setPhoto] = useState<string | null>(null);
   const cameraRef = useRef<CameraView | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const bottomSpacing = useBottomTabSpacing();
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -57,9 +60,10 @@ export default function TabTwoScreen() {
         city: '',
         postal: '',
         description: '',
-        url: '',
+        imageUrl: '',
         latitude: 44.6488, // Halifax Latitude
         longitude: -63.5752, // Halifax Longitude
+        type: '',
     })
 
     const handleUpload = async () => {
@@ -67,23 +71,27 @@ export default function TabTwoScreen() {
       setShowCamera(false);
       setPhoto(null);
 
-      const authUser = auth.currentUser 
+      const userData = await AsyncStorage.getItem("userData") ?? ""
+      const user = JSON.parse(userData) 
       if (photo)
       {
         const imageUrl = await uploadImageToCloud(photo) ?? ""
-        setData( {...uploadData,url: imageUrl })
+        setData( {...uploadData,imageUrl: imageUrl })
       }
     
       // ensure coordinates match inputted address
-      const displayName = `${uploadData.address} ${uploadData.city} ${uploadData.postal}` 
-      const coords = await getCoordinates(displayName) || { latitude: uploadData.latitude, longitude: uploadData.longitude };
-
-      setData({
-          ...uploadData,
-          latitude: coords.latitude,
-          longitude: coords.longitude
-      });
-
+      if (uploadData.address && uploadData.city && uploadData.postal)
+      {
+        const displayName = `${uploadData.address} ${uploadData.city} ${uploadData.postal}` 
+        const coords = await getCoordinates(displayName) || { latitude: uploadData.latitude, longitude: uploadData.longitude };
+        
+        setData({
+            ...uploadData,
+            latitude: coords.latitude,
+            longitude: coords.longitude
+        });
+      }
+      console.log("url: "+ uploadData.imageUrl)
       try {
         const listingDetails = {
           lid: uuidv1(),
@@ -93,14 +101,25 @@ export default function TabTwoScreen() {
           city: uploadData.city,
           postal: uploadData.postal,
           description: uploadData.description,
-          url: uploadData.url,
+          imageUrl: uploadData.imageUrl,
           createdAt: new Date().toISOString(),
-          uid: authUser?.uid
+          seller: {
+            uid: user?.uid,
+            name: user?.username,
+            email: user?.email,
+          },
+          location: {
+            latitude:  uploadData.latitude,
+            longitude: uploadData.longitude,
+          },
+          type: uploadData.type,
         }
 
         console.log(`listingDetails : ${listingDetails}`)
         // Save upload to database
         await set(ref(database, '/listings/' + listingDetails.lid), listingDetails);
+
+        router.push(`/listings/${listingDetails.lid}`)
       } catch (error: any) {
         console.error("Uploading error:", error.message);
         setError("Uploading error: " + error.message);
@@ -167,8 +186,8 @@ export default function TabTwoScreen() {
     
 
   return (
-    <View style={tw`flex-1 bg-gray-100 px-7`}>
-    <SafeAreaView>
+    <View style={[tw`flex-1 bg-gray-100 px-7`,{marginBottom: bottomSpacing}]}>
+    <SafeAreaView >
         {/* Back Button*/}
           <View style={tw`px-4 pt-2 pb-4 flex-row justify-between`}>
               <TouchableOpacity

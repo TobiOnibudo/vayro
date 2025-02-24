@@ -15,6 +15,7 @@ export interface SignUpUser {
 
 
 export interface LoggedInUser{
+  uid: string;
   firstName: string;
   lastName: string;
   username: string;
@@ -31,8 +32,9 @@ export interface userUpload {
   city: string;
   postal: string;
   description: string;
-  url: string;
+  imageUrl: string;
   latitude: number;
   longitude: number;
+  type: string;
 }
 
