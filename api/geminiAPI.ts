@@ -17,10 +17,14 @@ const genAI = new GoogleGenerativeAI(apiKey);
 const schema = {
   type: SchemaType.OBJECT,
   properties: {
-    price: { type: SchemaType.NUMBER },
-    reason: { type: SchemaType.STRING },
+    suggestedPrice: { type: SchemaType.NUMBER },
+    priceRange: { type: SchemaType.ARRAY, items: { type: SchemaType.NUMBER } },
+    reason: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+    confidence: { type: SchemaType.NUMBER },
+    recommendedDescription: { type: SchemaType.STRING },
+
   },
-  required: ["price", "reason"],
+  required: ["suggestedPrice", "priceRange", "reason", "confidence", "recommendedDescription"],
 };
 
 const model = genAI.getGenerativeModel({
@@ -33,8 +37,11 @@ const model = genAI.getGenerativeModel({
 
 // Create a zod schema to validate the response from Gemini
 const geminiResponseSchema = z.object({
-  price: z.number(),
-  reason: z.string(),
+  suggestedPrice: z.number(),
+  priceRange: z.array(z.number()),
+  reason: z.array(z.string()),
+  confidence: z.number(),
+  recommendedDescription: z.string(),
 });
 
 type GeminiResponse = z.infer<typeof geminiResponseSchema>;
@@ -66,8 +73,11 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
   ### Output Format:
   Your JSON response should follow this structure:
   {
-    "price": <number>,
-    "reason": <string>
+    "suggestedPrice": <number>,
+    "priceRange": <array of numbers>,
+    "reason": <array of strings>,
+    "confidence": <number>,
+    "recommendedDescription": <string>
   }
 
   ### Additional Details:
