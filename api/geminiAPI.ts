@@ -82,6 +82,8 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
 
   ### Additional Details:
   - The reasoning should be approximately 150 words and must address how the item's condition, category, and the year of purchase influence its current market value.
+  - Each reason should be only 1 or 2 sentences.
+  - Give me maximum of 4 reasons.
   - Please ensure your response is straightforward and concise, providing only the JSON object without any extra commentary or embellishments.
 
   `;

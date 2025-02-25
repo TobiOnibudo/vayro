@@ -148,9 +148,22 @@ export default function GeminiResponseScreen() {
             <Text style={tw`text-lg font-semibold text-gray-900 mb-2`}>
               Price Analysis
             </Text>
-            <Text style={tw`text-base text-gray-700 leading-6`}>
-              {reason}
-            </Text>
+            {Array.isArray(reason) ? (
+              <View style={tw`gap-2`}>
+                {reason.map((point, index) => (
+                  <View key={index} style={tw`flex-row`}>
+                    <Text style={tw`text-gray-700 mr-2`}>•</Text>
+                    <Text style={tw`text-base text-gray-700 flex-1`}>
+                      {point}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={tw`text-base text-gray-700 leading-6`}>
+                {reason}
+              </Text>
+            )}
           </View>
 
           <View style={tw`bg-yellow-50 rounded-xl p-6`}>
