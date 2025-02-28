@@ -82,17 +82,24 @@ export default function GeminiResponseScreen() {
                   {/* Colored track between pins */}
                   <View style={tw`h-2 bg-blue-300 rounded-full w-full absolute top-3`} />
                   
-                  {/* Min price vertical bar with label */}
-                  <View style={tw`absolute left-[-3] items-center`}>
+                  {/* Min price vertical bar */}
+                  <View style={tw`absolute left-0 top-0`}>
                     <View style={tw`h-8 w-1.5 bg-blue-500 rounded-full`} />
+                  </View>
+                  
+                  {/* Max price vertical bar */}
+                  <View style={tw`absolute right-0 top-0`}>
+                    <View style={tw`h-8 w-1.5 bg-blue-500 rounded-full`} />
+                  </View>
+                  
+                  {/* Price labels - positioned independently */}
+                  <View style={tw`absolute left-0 top-9 w-20 items-start`} pointerEvents="none">
                     <Text style={tw`text-xs text-gray-600 mt-1`}>
                       ${priceRange[0].toLocaleString()}
                     </Text>
                   </View>
                   
-                  {/* Max price vertical bar with label */}
-                  <View style={tw`absolute right-[-3] items-center`}>
-                    <View style={tw`h-8 w-1.5 bg-blue-500 rounded-full`} />
+                  <View style={tw`absolute right-0 top-9 w-20 items-end`} pointerEvents="none">
                     <Text style={tw`text-xs text-gray-600 mt-1`}>
                       ${priceRange[1].toLocaleString()}
                     </Text>
