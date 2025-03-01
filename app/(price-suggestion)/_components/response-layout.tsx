@@ -103,6 +103,7 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
             ))}
           </View>
         ) : (
+          // Fallback for when reason is not an array
           <Text style={tw`text-base text-gray-700 leading-6`}>
             {data.reason}
           </Text>
