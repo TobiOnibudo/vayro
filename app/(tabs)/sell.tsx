@@ -308,7 +308,7 @@ export default function SellScreen() {
                     setData(prev => ({ ...prev, description: text }))
                   }
                   placeholderTextColor={tw.color('gray-500')}
-                  onFocus={() => scrollToInput(400)}>
+                  onFocus={() => scrollToInput(600)}>
                 </TextInput>
               </View>
 
