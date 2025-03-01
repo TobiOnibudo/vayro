@@ -60,9 +60,8 @@ export const getAddress = async (lat: number, lon: number): Promise<{ address: s
     if (!address) {
       return null; // Return null if there's no address
     }
-    console.log(address)
     // Extract address, postal code, and city
-    const formattedAddress = address.road ? `${address.house_number} ${address.road}` : 'Address not available';
+    const formattedAddress = address.road ? `${address.amenity}, ${address.road}` : 'Address not available';
     const postalCode = address.postcode || null;
     const city = address.city || null;
     const displayName = response.data.display_name 

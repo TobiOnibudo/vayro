@@ -167,13 +167,13 @@ export default function SellScreen() {
 
         console.log('Got user location:', location);
 
-        const addressDetails = await getAddress(location.coords.latitude, location.coords.longitude)
-        const address = addressDetails?.address ?? ""
-        const postal = addressDetails?.postalCode ?? ""
-        const city = addressDetails?.city ?? ""
+        const addressDetails = await getAddress(location.coords.latitude, location.coords.longitude);
+        const address = addressDetails?.address ?? "";
+        const postal = addressDetails?.postalCode ?? "";
+        const city = addressDetails?.city ?? "";
 
         // add coordinates and address details
-        setData({ ...uploadData, ...location.coords, address, postal, city })
+        setData({ ...uploadData, ...location.coords, address, postal, city });
       }
     }
     catch (error) {
@@ -252,10 +252,10 @@ export default function SellScreen() {
                 </View>
 
                 {isLoading ? (
-                  <View style={tw`flex-col my-8 items-center justify-center`}>
+                  <View style={tw`flex-col my-8 items-center justify-center gap-2`}>
                     <ActivityIndicator
                       size="large"
-                      color="#0000ff"
+                      color="#ACA592"
                     />
                     <Text style={tw`text-center text-gray-500`}>Getting your location...</Text>
                   </View>
