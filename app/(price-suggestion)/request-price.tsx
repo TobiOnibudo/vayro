@@ -30,14 +30,14 @@ export default function RequestPriceScreen() {
       params: { paramsData: JSON.stringify(data) },
     });
   };
- 
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
       style={tw`flex-1`}
     >
-      <ScrollView 
+      <ScrollView
         ref={scrollViewRef}
         style={tw`bg-neutral-100`}
         contentContainerStyle={tw`flex-grow`}
