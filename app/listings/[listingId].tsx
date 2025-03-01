@@ -55,7 +55,7 @@ export default function ListingDetailPage() {
   }
 
   return (
-    <SafeAreaView style={[tw`flex-1 bg-gray-50`, ]}>
+    <SafeAreaView style={[tw`flex-1 bg-gray-50`]}>
       <ScrollView contentContainerStyle={tw`p-4 ]`}>
         {/* Back Button */}
         <TouchableOpacity onPress={() => router.back()} style={tw`mb-4`}>

@@ -65,6 +65,17 @@ export default function SellScreen() {
     type: '',
   })
 
+  const selectPhoto = async() => 
+  {
+    if (photo) {
+      const imageUrl = await uploadImageToCloud(photo) ?? ""
+      setData({ ...uploadData, imageUrl: imageUrl })
+    }
+    // Set Camera off and set photo to null
+    setShowCamera(false);
+    setPhoto(null);
+  }
+
   const handleUpload = async () => {
     // Set Camera off and set photo to null
     setShowCamera(false);
@@ -72,10 +83,7 @@ export default function SellScreen() {
     setIsLoading(true);
     const userData = await AsyncStorage.getItem("userData") ?? ""
     const user = JSON.parse(userData)
-    if (photo) {
-      const imageUrl = await uploadImageToCloud(photo) ?? ""
-      setData({ ...uploadData, imageUrl: imageUrl })
-    }
+    console.log(photo)
 
     // ensure coordinates match inputted address
     if (uploadData.address && uploadData.city && uploadData.postal) {
@@ -360,7 +368,7 @@ export default function SellScreen() {
                     <TouchableOpacity onPress={() => setPhoto(null)} style={tw`p-3 mr-10 bg-gray-400 rounded-full`}>
                       <Ionicons name="close" size={25} color="white" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleUpload} style={tw`p-3 bg-green-500 rounded-full`}>
+                    <TouchableOpacity onPress={selectPhoto} style={tw`p-3 bg-green-500 rounded-full`}>
                       <Ionicons name="checkmark" size={25} color="white" />
                     </TouchableOpacity>
                   </View>
