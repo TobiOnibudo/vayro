@@ -25,7 +25,7 @@ export interface LoggedInUser{
   createdAt: string;
 }
 
-export interface userUpload {
+export interface UserUpload {
   title: string;
   price: string; //change later
   address: string;

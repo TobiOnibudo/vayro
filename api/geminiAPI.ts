@@ -17,10 +17,14 @@ const genAI = new GoogleGenerativeAI(apiKey);
 const schema = {
   type: SchemaType.OBJECT,
   properties: {
-    price: { type: SchemaType.NUMBER },
-    reason: { type: SchemaType.STRING },
+    suggestedPrice: { type: SchemaType.NUMBER },
+    priceRange: { type: SchemaType.ARRAY, items: { type: SchemaType.NUMBER } },
+    reason: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+    confidence: { type: SchemaType.NUMBER },
+    recommendedDescription: { type: SchemaType.STRING },
+
   },
-  required: ["price", "reason"],
+  required: ["suggestedPrice", "priceRange", "reason", "confidence", "recommendedDescription"],
 };
 
 const model = genAI.getGenerativeModel({
@@ -33,17 +37,20 @@ const model = genAI.getGenerativeModel({
 
 // Create a zod schema to validate the response from Gemini
 const geminiResponseSchema = z.object({
-  price: z.number(),
-  reason: z.string(),
+  suggestedPrice: z.number(),
+  priceRange: z.array(z.number()),
+  reason: z.array(z.string()),
+  confidence: z.number(),
+  recommendedDescription: z.string(),
 });
 
-type GeminiResponse = z.infer<typeof geminiResponseSchema>;
+export type GeminiResponseData = z.infer<typeof geminiResponseSchema>;
 
 // API response type
 export type APIGeminiResponse = {
   success: boolean;
   code: number;
-  data: GeminiResponse | null;
+  data: GeminiResponseData | null;
   error?: string;
 };
 
@@ -54,7 +61,7 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
   You are a knowledgeable pricing expert specializing in item evaluations and market trends. 
 
   ### Instructions:
-  Please estimate the value of an item based on the details provided below. Your response should be a JSON object that includes both the estimated price and a well-reasoned explanation for that price.
+  Please estimate the value of an item based on the details provided below. Your response should be a JSON object that includes both the estimated price and a well-reasoned explanation for that price. Based on the item's condition, category, and the year of purchase, please provide a price range and a confidence score.
 
   ### Item Details:
   - Title: ${title}
@@ -66,19 +73,24 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
   ### Output Format:
   Your JSON response should follow this structure:
   {
-    "price": <number>,
-    "reason": <string>
+    "suggestedPrice": <number>,
+    "priceRange": <array of numbers>,
+    "reason": <array of strings>,
+    "confidence": <number>,
+    "recommendedDescription": <string>
   }
 
   ### Additional Details:
   - The reasoning should be approximately 150 words and must address how the item's condition, category, and the year of purchase influence its current market value.
+  - Each reason should be only 1 or 2 sentences.
+  - Give me maximum of 4 reasons.
   - Please ensure your response is straightforward and concise, providing only the JSON object without any extra commentary or embellishments.
 
   `;
 
   try {
     const response = await model.generateContent(prompt);
-    const result = response.response.text();
+    const result = response.response.text(); 
 
     if (!result) {
       return {
