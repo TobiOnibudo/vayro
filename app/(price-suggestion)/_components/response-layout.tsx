@@ -10,7 +10,7 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
           Suggested Price
         </Text>
         <Text style={tw`text-3xl font-bold text-blue-500`}>
-          ${data.suggestedPrice?.toLocaleString()}
+          ${data.suggestedPrice.toLocaleString()}
         </Text>
         <View style={tw`mt-4`}>
           <Text style={tw`text-sm text-gray-600 mb-2`}>
