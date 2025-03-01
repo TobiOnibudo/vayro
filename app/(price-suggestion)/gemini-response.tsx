@@ -2,7 +2,7 @@ import { View, Text, ActivityIndicator, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import tw from "twrnc";
 import { usePriceSuggestion } from "@/hooks/usePriceSuggestion";
-import { ResponseGrid } from "./_components/response-grid";
+import { ResponseLayout } from "./_components/response-layout";
 
 export default function GeminiResponseScreen() {
   const { paramsData } = useLocalSearchParams<{ paramsData: string }>();
@@ -32,7 +32,7 @@ export default function GeminiResponseScreen() {
         </View>
       ) : (
         data && (
-          <ResponseGrid data={data} />
+          <ResponseLayout data={data} />
         ))}
     </ScrollView>
   );

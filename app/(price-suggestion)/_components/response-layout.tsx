@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
 
-export function ResponseGrid({ data }: { data: GeminiResponseData }) {
+export function ResponseLayout({ data }: { data: GeminiResponseData }) {
   return (
     <View style={tw`gap-6`}>
       <View style={tw`bg-stone-100 rounded-xl p-6`}>
