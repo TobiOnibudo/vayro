@@ -1,10 +1,10 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator } from 'react-native';
 import { ref, set } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';
 import React, { useState, useRef } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
-import { LoggedInUser, userUpload } from '@/types/userSchema';
+import { LoggedInUser, UserUpload } from '@/types/userSchema';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
 import 'react-native-get-random-values';
@@ -29,13 +29,17 @@ export default function SellScreen() {
   const [error, setError] = useState<string | null>(null);
   const bottomSpacing = useBottomTabSpacing();
 
+  const [isLoading, setIsLoading] = useState(false);
+
   React.useEffect(() => {
     const loadUser = async () => {
+      setIsLoading(true);
       const userDataString = await AsyncStorage.getItem('userData');
       if (userDataString) {
         const userData = JSON.parse(userDataString);
         setUser(userData);
       }
+      setIsLoading(false);
     };
     loadUser();
   }, []);
@@ -46,7 +50,7 @@ export default function SellScreen() {
 
   //Handle user authentication and link with firebase for user
 
-  const [uploadData, setData] = useState<userUpload>({
+  const [uploadData, setData] = useState<UserUpload>({
     title: '',
     price: '',
     address: '',
@@ -63,7 +67,7 @@ export default function SellScreen() {
     // Set Camera off and set photo to null
     setShowCamera(false);
     setPhoto(null);
-
+    setIsLoading(true);
     const userData = await AsyncStorage.getItem("userData") ?? ""
     const user = JSON.parse(userData)
     if (photo) {
@@ -115,6 +119,7 @@ export default function SellScreen() {
       console.error("Uploading error:", error.message);
       setError("Uploading error: " + error.message);
     }
+    setIsLoading(false);
   }
 
   const takePicture = async () => {
@@ -150,6 +155,7 @@ export default function SellScreen() {
   }
 
   const getCurrentLocation = async () => {
+    setIsLoading(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') { // Only proceed if permission is granted
@@ -171,10 +177,8 @@ export default function SellScreen() {
     catch (error) {
       console.error('Error getting location:', error);
     }
-
+    setIsLoading(false);
   }
-
-
 
 
   return (
@@ -213,7 +217,7 @@ export default function SellScreen() {
               <TextInput
                 style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
                 placeholder={field}
-                value={String(uploadData[field.toLowerCase() as keyof userUpload])}
+                value={String(uploadData[field.toLowerCase() as keyof UserUpload])}
                 onChangeText={(text) =>
                   setData(prev => ({ ...prev, [field.toLowerCase()]: text }))
                 }
@@ -232,36 +236,47 @@ export default function SellScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Address Input */}
-          <TextInput
-            style={tw`w-full shadow-md mb-8 px-4 py-3 bg-white rounded-lg border border-gray-200`}
-            placeholder="Address"
-            value={uploadData.address}
-            onChangeText={(text) =>
-              setData((prev) => ({ ...prev, address: text }))
-            }
-            placeholderTextColor={tw.color('gray-500')}
-            keyboardType="default"
-          />
-        </View>
+          {isLoading ? (
+            <View style={tw`flex-col my-8 items-center justify-center`}>
+              <ActivityIndicator 
+                size="large" 
+                color="#0000ff" 
+              />
+              <Text style={tw`text-center text-gray-500`}>Getting your location...</Text>
+            </View>
+          ) : (
+            <>
+              {/* Address Input */}
+              <TextInput
+                style={tw`w-full shadow-md mb-8 px-4 py-3 bg-white rounded-lg border border-gray-200`}
+                placeholder="Address"
+                value={uploadData.address}
+                onChangeText={(text) =>
+                  setData((prev) => ({ ...prev, address: text }))
+                }
+                placeholderTextColor={tw.color('gray-500')}
+                keyboardType="default"
+              />
 
-        {/* City & Postal Form */}
-        <View style={tw`flex-row shadow-md mb-8`}>
-          {/* First Name and Last Name */}
-          <TextInput
-            style={tw`w-[48%] px-4 py-3 mr-3 bg-white rounded-lg border border-gray-200 `}
-            placeholder="City"
-            value={uploadData.city}
-            onChangeText={(text) => setData((prev: any) => ({ ...prev, city: text }))}
-            placeholderTextColor={tw.color('gray-500')}
-          />
-          <TextInput
-            style={tw`w-[48%] px-4 py-3 bg-white rounded-lg border border-gray-200`}
-            placeholder="Postal"
-            value={uploadData.postal}
-            onChangeText={(text) => setData((prev: any) => ({ ...prev, postal: text }))}
-            placeholderTextColor={tw.color('gray-500')}
-          />
+              {/* City & Postal Form */}
+              <View style={tw`flex-row shadow-md mb-8`}>
+                <TextInput
+                  style={tw`w-[48%] px-4 py-3 mr-3 bg-white rounded-lg border border-gray-200 `}
+                  placeholder="City"
+                  value={uploadData.city}
+                  onChangeText={(text) => setData((prev: any) => ({ ...prev, city: text }))}
+                  placeholderTextColor={tw.color('gray-500')}
+                />
+                <TextInput
+                  style={tw`w-[48%] px-4 py-3 bg-white rounded-lg border border-gray-200`}
+                  placeholder="Postal"
+                  value={uploadData.postal}
+                  onChangeText={(text) => setData((prev: any) => ({ ...prev, postal: text }))}
+                  placeholderTextColor={tw.color('gray-500')}
+                />
+              </View>
+            </>
+          )}
         </View>
 
         {/* Description */}
