@@ -44,13 +44,13 @@ const geminiResponseSchema = z.object({
   recommendedDescription: z.string(),
 });
 
-type GeminiResponse = z.infer<typeof geminiResponseSchema>;
+export type GeminiResponseData = z.infer<typeof geminiResponseSchema>;
 
 // API response type
 export type APIGeminiResponse = {
   success: boolean;
   code: number;
-  data: GeminiResponse | null;
+  data: GeminiResponseData | null;
   error?: string;
 };
 
@@ -61,7 +61,7 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
   You are a knowledgeable pricing expert specializing in item evaluations and market trends. 
 
   ### Instructions:
-  Please estimate the value of an item based on the details provided below. Your response should be a JSON object that includes both the estimated price and a well-reasoned explanation for that price.
+  Please estimate the value of an item based on the details provided below. Your response should be a JSON object that includes both the estimated price and a well-reasoned explanation for that price. Based on the item's condition, category, and the year of purchase, please provide a price range and a confidence score.
 
   ### Item Details:
   - Title: ${title}
@@ -90,7 +90,7 @@ export async function getPriceSuggestion(data: FormSchema): Promise<APIGeminiRes
 
   try {
     const response = await model.generateContent(prompt);
-    const result = response.response.text();
+    const result = response.response.text(); 
 
     if (!result) {
       return {

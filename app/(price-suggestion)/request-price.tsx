@@ -27,7 +27,7 @@ export default function RequestPriceScreen() {
   const onSubmit = async (data: FormSchema) => {
     router.push({
       pathname: "/(price-suggestion)/gemini-response",
-      params: { data: JSON.stringify(data) },
+      params: { paramsData: JSON.stringify(data) },
     });
   };
  
