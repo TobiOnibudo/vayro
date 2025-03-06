@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, TextInput, ScrollView, SafeAreaView, Text, TouchableOpacity, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import tw from 'twrnc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoggedInUser } from '@/types/userSchema';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { FeedCard } from '@/components/FeedCard';
 import { equalTo, get, off, orderByChild, query, ref, remove } from 'firebase/database';
 import { auth, database } from '@/config/firebaseConfig';
@@ -17,12 +17,12 @@ export default function SellHistoryScreen() {
   const [listings, setListings] = useState<Listing[]>()
   const bottomSpacing = useBottomTabSpacing();
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback (() => {
     const getUserListings = async () => {
       try {
         if (user) {
           const listingsRef = ref(database, 'listings')
-
           const queryRef = query(listingsRef, orderByChild('seller/uid'), equalTo(user?.uid))
           off(queryRef) // Clears any cached data
           const snapshot = await get(queryRef)
@@ -39,8 +39,9 @@ export default function SellHistoryScreen() {
         console.error('Error fetching data:', err);
       }
     }
+
     getUserListings()
-  }, [user])
+  }, [user]))
 
 
   // Get user data??
