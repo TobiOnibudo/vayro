@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { UserUpload } from '@/types/userSchema';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
@@ -175,7 +175,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               {/* Address Input */}
               <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Street Address</Text>
               <TextInput
-                style={tw`w-full shadow-md mb-8 px-4 py-3 bg-white rounded-lg border border-gray-200`}
+                style={tw`w-full shadow-md mb-4 px-4 py-3 bg-white rounded-lg border border-gray-200`}
                 placeholder="Address"
                 value={uploadData.address}
                 onChangeText={(text) =>
@@ -258,6 +258,13 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             keyboardType="decimal-pad"
             onFocus={() => scrollToInput(700)}>
           </TextInput>
+          {/* Ask AI for price suggestion */}
+          <View>
+            <TouchableOpacity style={tw`flex-row mt-2`} onPress={() => router.push('/(price-suggestion)/request-price')}>
+              <Feather name="info" size={20} color="black" />
+              <Text style={[tw`underline ml-1`, { color: '#3f698d' }]}>Don't know the price? Ask our AI</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Upload Button */}
