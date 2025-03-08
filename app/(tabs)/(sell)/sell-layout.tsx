@@ -1,7 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { ref, set } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { UserUpload } from '@/types/userSchema';
@@ -15,6 +15,7 @@ import * as Location from 'expo-location';
 import { getAddress, getCoordinates } from '@/api/locationAPI';
 import { useScrollToInput } from '@/hooks/useScrollToInput';
 import { useLoadUser } from '@/hooks/useLoadUser';
+import { useCamera } from '@/hooks/useCamera';
 //Notes: when switching screens, need to make sure to turn showCamera false
 
 export default function SellScreen() {
@@ -23,23 +24,26 @@ export default function SellScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const { user, loadUser } = useLoadUser(setIsLoading);
-
-  const [facing, setFacing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useCameraPermissions();
-  const [showCamera, setShowCamera] = useState(false);
-  const [photo, setPhoto] = useState<string | null>(null);
-  const cameraRef = useRef<CameraView | null>(null);
   
   const { scrollToInput, scrollViewRef } = useScrollToInput();
+
+  const { 
+    facing,
+    permission,
+    requestPermission,
+    showCamera,
+    photo,
+    cameraRef,
+    toggleCameraFacing,
+    takePicture,
+    setShowCamera,
+    setPhoto 
+  } = useCamera();
 
   useEffect(() => {
     loadUser();
   }, []);
-
-
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
+  
 
   //Handle user authentication and link with firebase for user
 
@@ -123,38 +127,6 @@ export default function SellScreen() {
     setIsLoading(false);
   }
 
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      const photoData: CameraCapturedPicture | undefined = await cameraRef.current.takePictureAsync({
-        quality: 0.5,
-        base64: false,
-      });
-
-      if (photoData) {
-        setPhoto(photoData.uri);
-        console.log('Photo Taken: ', photoData.uri);
-      } else {
-        console.warn('Failed to take picture: photoData is undefined');
-      }
-    }
-  }
-
-
-  if (!permission) {
-    // Loading Camera permissions
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
-      <View style={tw`flex-1 justify-center items-center p-4`}>
-        <Text style={tw`text-[#ACA592] text-center mb-4`}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Grant Permission" />
-      </View>
-    );
-  }
-
   const getCurrentLocation = async () => {
     setIsLoading(true);
     try {
@@ -181,6 +153,21 @@ export default function SellScreen() {
     setIsLoading(false);
   }
 
+
+  if (!permission) {
+    // Loading Camera permissions
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    // Camera permissions are not granted yet.
+    return (
+      <View style={tw`flex-1 justify-center items-center p-4`}>
+        <Text style={tw`text-[#ACA592] text-center mb-4`}>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="Grant Permission" />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
