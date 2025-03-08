@@ -19,7 +19,10 @@ export default function SellScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback 
+          onPress={Keyboard.dismiss}
+          accessible={false}
+        >
           <SellPage scrollToInput={scrollToInput} />
         </TouchableWithoutFeedback>
       </ScrollView>

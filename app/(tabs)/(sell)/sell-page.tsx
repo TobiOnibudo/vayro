@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -94,7 +94,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     );
   }
   return (
-    <View style={tw`flex-1 bg-gray-100 px-7`}>
+    <ScrollView style={tw`flex-1 bg-gray-100 px-7 mb-20`}>
       <SafeAreaView>
         {/* Back Button*/}
         <View style={tw`px-4 pt-2 pb-4 flex-row justify-between`}>
@@ -205,9 +205,35 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               setData(prev => ({ ...prev, description: text }))
             }
             placeholderTextColor={tw.color('gray-500')}
-            onFocus={() => scrollToInput(600)}>
+            onFocus={() => scrollToInput(300)}>
           </TextInput>
         </View>
+
+        {/* Photo Preview */}
+        {uploadData.imageUrl ? (
+          <View style={tw`mb-7 items-center`}>
+            <Text style={tw`text-gray-700 mb-2`}>Photo Preview:</Text>
+            <View style={tw`w-full h-80 rounded-lg overflow-hidden shadow-md`}>
+              <Image 
+                source={{ uri: uploadData.imageUrl }} 
+                style={tw`w-full h-full`} 
+                resizeMode="cover"
+              />
+            </View>
+            <TouchableOpacity 
+              style={tw`mt-2 p-2 bg-red-500 rounded-full`}
+              onPress={() => setData({...uploadData, imageUrl: ''})}>
+              <Ionicons name="trash-outline" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={tw`mb-7 items-center`}>
+            <Text style={tw`text-gray-500 mb-2`}>No photo selected</Text>
+            <View style={tw`w-full h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center`}>
+              <Text style={tw`text-gray-400`}>Tap the camera icon to add a photo</Text>
+            </View>
+          </View>
+        )}
 
         {/* Upload Button */}
         <View style={tw`items-center`}>
@@ -222,7 +248,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
         {showCamera && !photo && (
           <View style={tw`absolute top-10 left-0 right-0 bottom-0 w-100%`}>
-            <CameraView style={tw`flex-1 w-100%`} facing={facing} ref={cameraRef}>
+            <CameraView style={tw`h-180 w-100%`} facing={facing} ref={cameraRef}>
               <View style={tw`absolute bottom-5 left-14 right-0 flex-row justify-center`}>
                 {/* Take Picture */}
                 <TouchableOpacity
@@ -252,7 +278,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
         {/* Photo Preview and Selection*/}
         {photo && (
           <View style={tw`absolute top-10 left-0 right-0 bottom--10 flex-1 justify-center items-center z-10 bg-gray-100`}>
-            <Image source={{ uri: photo }} style={tw`w-full h-80% rounded-lg`} />
+            <Image source={{ uri: photo }} style={tw`w-full h-40% rounded-lg`} />
             <View style={tw`flex-row justify-between mt-4`}>
               <TouchableOpacity onPress={() => setPhoto(null)} style={tw`p-3 mr-10 bg-gray-400 rounded-full`}>
                 <Ionicons name="close" size={25} color="white" />
@@ -264,6 +290,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           </View>
         )}
       </SafeAreaView>
-    </View>
+    </ScrollView>
   )
 }
