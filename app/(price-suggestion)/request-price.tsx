@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
 import { useState } from "react";
-// Check `~/types/priceSuggestionFromSchema.ts` for the types and schema
 import { schema, type FormSchema, CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
 import { useRouter } from "expo-router";
 import { useScrollToInput } from "@/hooks/useScrollToInput";

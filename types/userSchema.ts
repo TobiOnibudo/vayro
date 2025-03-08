@@ -1,4 +1,5 @@
-// TODO: change user schema when implementing auth
+import { Condition, Category } from "./priceSuggestionFormSchema";
+
 export interface LoginUser {
   email: string;
   password: string;
@@ -36,5 +37,8 @@ export interface UserUpload {
   latitude: number;
   longitude: number;
   type: string;
+  condition: Condition;
+  category: Category;
+  boughtInYear: number;
 }
 

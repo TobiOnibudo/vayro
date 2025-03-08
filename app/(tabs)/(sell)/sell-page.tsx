@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert, ScrollView, Modal, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -9,6 +9,12 @@ import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
 import { getCurrentLocation, uploadListing } from './_functions';
+import { Picker } from "@react-native-picker/picker";
+import { CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
+
+const ConditionPickerValues = ["", ...Object.values(CONDITIONS_VALUES)];
+const CategoryPickerValues = ["", ...Object.values(CATEGORIES_VALUES)];
+
 type SellPageProps = {
   scrollToInput: (y: number) => void;
 }
@@ -16,10 +22,12 @@ type SellPageProps = {
 //Notes: when switching screens, need to make sure to turn showCamera false
 
 export function SellPage({ scrollToInput }: SellPageProps) {
-
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [showConditionPicker, setShowConditionPicker] = useState(false);
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
 
   const { user, loadUser } = useLoadUser(setIsLoading);
 
@@ -51,6 +59,9 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     latitude: 44.6488, // Halifax Latitude
     longitude: -63.5752, // Halifax Longitude
     type: '',
+    condition: 'Used',
+    category: 'Furniture',
+    boughtInYear: 0,
   })
 
   const selectPhoto = async () => {
@@ -152,6 +163,94 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               placeholderTextColor={tw.color('gray-500')}
             >
             </TextInput>
+          </View>
+
+          <View style={tw`mb-8 gap-4`}>
+            <View>
+              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Condition</Text>
+              <Pressable
+                style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
+                onPress={() => setShowConditionPicker(true)}
+              >
+                <Text>{uploadData.condition || 'Select condition'}</Text>
+              </Pressable>
+              <Modal
+                visible={showConditionPicker}
+                transparent
+                animationType="slide"
+              >
+                <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
+                  <View style={tw`bg-white w-full`}>
+                    <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
+                      <Pressable
+                        onPress={() => setShowConditionPicker(false)}
+                        style={tw`px-4 py-2`}
+                      >
+                        <Text style={tw`text-blue-600 font-medium`}>Done</Text>
+                      </Pressable>
+                    </View>
+                    <Picker
+                      selectedValue={uploadData.condition}
+                      onValueChange={(itemValue) => {
+                        setData(prev => ({ ...prev, condition: itemValue }));
+                      }}
+                    >
+                      {ConditionPickerValues.map((condition) => (
+                        <Picker.Item
+                          key={condition}
+                          label={condition.charAt(0).toUpperCase() + condition.slice(1)}
+                          value={condition}
+                          color="black"
+                        />
+                      ))}
+                    </Picker>
+                  </View>
+                </View>
+              </Modal>
+            </View>
+
+            <View>
+              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Category</Text>
+              <Pressable
+                style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
+                onPress={() => setShowCategoryPicker(true)}
+              >
+                <Text>{uploadData.category || 'Select category'}</Text>
+              </Pressable>
+              <Modal
+                visible={showCategoryPicker}
+                transparent
+                animationType="slide"
+              >
+                <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
+                  <View style={tw`bg-white w-full`}>
+                    <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
+                      <Pressable
+                        onPress={() => setShowCategoryPicker(false)}
+                        style={tw`px-4 py-2`}
+                      >
+                        <Text style={tw`text-blue-600 font-medium`}>Done</Text>
+                      </Pressable>
+                    </View>
+                    <Picker
+                      selectedValue={uploadData.category}
+                      onValueChange={(itemValue) => {
+                        setData(prev => ({ ...prev, category: itemValue }));
+                      }}
+                    >
+                      {CategoryPickerValues.map((category) => (
+                        <Picker.Item
+                          key={category}
+                          label={category.charAt(0).toUpperCase() + category.slice(1)}
+                          value={category}
+                          color="black"
+                        />
+                      ))}
+                    </Picker>
+                  </View>
+                </View>
+              </Modal>
+            </View>
           </View>
 
           {/* Adding option to get current location */}
