@@ -1,8 +1,6 @@
 import axios from "axios";
 import * as FileSystem from "expo-file-system";
 
-
-
 export const uploadImageToCloud = async (imageUri: string): Promise<string | null> => {
   try {
     // Read the file and convert to base64

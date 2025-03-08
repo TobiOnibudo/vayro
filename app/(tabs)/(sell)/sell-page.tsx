@@ -1,5 +1,4 @@
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert } from 'react-native';
-
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -10,7 +9,6 @@ import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
 import { getCurrentLocation, uploadListing } from './_functions';
-
 type SellPageProps = {
   scrollToInput: (y: number) => void;
 }
@@ -41,9 +39,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   useEffect(() => {
     loadUser();
   }, []);
-
-
-  //Handle user authentication and link with firebase for user
 
   const [uploadData, setData] = useState<UserUpload>({
     title: '',
