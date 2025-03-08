@@ -11,7 +11,7 @@ import 'react-native-get-random-values';
 import { v1 as uuidv1 } from 'uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
-import { getAddress, getCoordinates } from '@/api/locationAPI';
+import { getCoordinates } from '@/api/locationAPI';
 import { useScrollToInput } from '@/hooks/useScrollToInput';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
