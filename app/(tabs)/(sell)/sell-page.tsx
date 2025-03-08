@@ -1,20 +1,15 @@
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert } from 'react-native';
-import { ref, set } from 'firebase/database';
-import { database } from '@/config/firebaseConfig';
+
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { UserUpload } from '@/types/userSchema';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
-import 'react-native-get-random-values';
-import { v1 as uuidv1 } from 'uuid';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
-import { getCoordinates } from '@/api/locationAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
-import { getCurrentLocation } from './_functions';
+import { getCurrentLocation, uploadListing } from './_functions';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -73,62 +68,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     setPhoto(null);
   }
 
-  const handleUpload = async () => {
-    // Set Camera off and set photo to null
-    setShowCamera(false);
-    setPhoto(null);
-    setIsLoading(true);
-    const userData = await AsyncStorage.getItem("userData") ?? ""
-    const user = JSON.parse(userData)
-    console.log(photo)
-
-    // ensure coordinates match inputted address
-    if (uploadData.address && uploadData.city && uploadData.postal) {
-      const displayName = `${uploadData.address} ${uploadData.city} ${uploadData.postal}`
-      const coords = await getCoordinates(displayName) || { latitude: uploadData.latitude, longitude: uploadData.longitude };
-
-      setData({
-        ...uploadData,
-        latitude: coords.latitude,
-        longitude: coords.longitude
-      });
-    }
-    console.log("url: " + uploadData.imageUrl)
-    try {
-      const listingDetails = {
-        lid: uuidv1(),
-        title: uploadData.title,
-        price: uploadData.price,
-        address: uploadData.address,
-        city: uploadData.city,
-        postal: uploadData.postal,
-        description: uploadData.description,
-        imageUrl: uploadData.imageUrl,
-        createdAt: new Date().toISOString(),
-        seller: {
-          uid: user?.uid,
-          name: user?.username,
-          email: user?.email,
-        },
-        location: {
-          latitude: uploadData.latitude,
-          longitude: uploadData.longitude,
-        },
-        type: uploadData.type,
-      }
-
-      console.log(`listingDetails : ${listingDetails}`)
-      // Save upload to database
-      await set(ref(database, '/listings/' + listingDetails.lid), listingDetails);
-
-      router.push(`/listings/${listingDetails.lid}`)
-    } catch (error: any) {
-      console.error("Uploading error:", error.message);
-      setError("Uploading error: " + error.message);
-    }
-    setIsLoading(false);
-  }
-
   const getLocation = async () => {
     setIsLoading(true);
     const location = await getCurrentLocation();
@@ -141,6 +80,9 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     setIsLoading(false);
   }
 
+  const handleUpload = async () => {
+    await uploadListing(uploadData, setData, setError, setIsLoading);
+  }
 
   if (!permission) {
     // Loading Camera permissions
