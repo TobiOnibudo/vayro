@@ -15,7 +15,10 @@ interface ReverseGeocodeResponse {
 const locationUrl = process.env.EXPO_PUBLIC_LOCATION_API_URL ?? ""
 
 // Function to get coordinates from an address
-export const getCoordinates = async (address: string): Promise<{ latitude: number; longitude: number } | null> => {
+export const getCoordinates = async (address: string): Promise<{
+  latitude: number;
+  longitude: number;
+} | null> => {
   try {
     const response = await axios.get<GeocodeResponse[]>(`${locationUrl}/search`, {
       params: {
@@ -42,7 +45,15 @@ export const getCoordinates = async (address: string): Promise<{ latitude: numbe
 };
 
 // Function to get an address from coordinates
-export const getAddress = async (lat: number, lon: number): Promise<{ address: string | null, postalCode: string | null, city: string | null , displayName : string | null } | null> => {
+export const getAddress = async (
+  lat: number, 
+  lon: number,
+): Promise<{ 
+  address: string | null,
+  postalCode: string | null,
+  city: string | null ,
+  displayName : string | null 
+} | null> => {
   try {
     const response = await axios.get<ReverseGeocodeResponse>(`${locationUrl}/reverse`, {
       params: {

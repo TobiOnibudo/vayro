@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
 import { ref, set } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';
 import { useState, useEffect } from 'react';
@@ -6,16 +6,16 @@ import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { UserUpload } from '@/types/userSchema';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
+import { CameraView } from 'expo-camera';
 import 'react-native-get-random-values';
 import { v1 as uuidv1 } from 'uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
-import * as Location from 'expo-location';
 import { getAddress, getCoordinates } from '@/api/locationAPI';
 import { useScrollToInput } from '@/hooks/useScrollToInput';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
+import { getCurrentLocation } from './_functions';
 //Notes: when switching screens, need to make sure to turn showCamera false
 
 export default function SellScreen() {
@@ -24,10 +24,10 @@ export default function SellScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const { user, loadUser } = useLoadUser(setIsLoading);
-  
+
   const { scrollToInput, scrollViewRef } = useScrollToInput();
 
-  const { 
+  const {
     facing,
     permission,
     requestPermission,
@@ -37,13 +37,13 @@ export default function SellScreen() {
     toggleCameraFacing,
     takePicture,
     setShowCamera,
-    setPhoto 
+    setPhoto
   } = useCamera();
 
   useEffect(() => {
     loadUser();
   }, []);
-  
+
 
   //Handle user authentication and link with firebase for user
 
@@ -60,8 +60,7 @@ export default function SellScreen() {
     type: '',
   })
 
-  const selectPhoto = async() => 
-  {
+  const selectPhoto = async () => {
     if (photo) {
       const imageUrl = await uploadImageToCloud(photo) ?? ""
       setData({ ...uploadData, imageUrl: imageUrl })
@@ -127,28 +126,14 @@ export default function SellScreen() {
     setIsLoading(false);
   }
 
-  const getCurrentLocation = async () => {
+  const getLocation = async () => {
     setIsLoading(true);
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') { // Only proceed if permission is granted
-        const location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-        });
-
-        console.log('Got user location:', location);
-
-        const addressDetails = await getAddress(location.coords.latitude, location.coords.longitude);
-        const address = addressDetails?.address ?? "";
-        const postal = addressDetails?.postalCode ?? "";
-        const city = addressDetails?.city ?? "";
-
-        // add coordinates and address details
-        setData({ ...uploadData, ...location.coords, address, postal, city });
-      }
+    const location = await getCurrentLocation();
+    if (location) {
+      setData({ ...uploadData, ...location.coords, address: location.address ?? "", postal: location.postal ?? "", city: location.city ?? "" });
     }
-    catch (error) {
-      console.error('Error getting location:', error);
+    else {
+      Alert.alert('Error getting location:', 'Please try again');
     }
     setIsLoading(false);
   }
@@ -231,7 +216,7 @@ export default function SellScreen() {
 
                 {/* Adding option to get current location */}
                 <View>
-                  <TouchableOpacity style={tw`flex-row`} onPress={getCurrentLocation}>
+                  <TouchableOpacity style={tw`flex-row`} onPress={getLocation}>
                     <Ionicons name="paper-plane" size={20} color="black" />
                     <Text style={[tw`underline ml-1`, { color: '#3f698d' }]}>Get Current Location</Text>
                   </TouchableOpacity>
@@ -261,7 +246,7 @@ export default function SellScreen() {
                     />
 
                     {/* City & Postal Form */}
-                    <View 
+                    <View
                       style={tw`flex-row shadow-md mb-8`}>
                       <TextInput
                         style={tw`w-[48%] px-4 py-3 mr-3 bg-white rounded-lg border border-gray-200 `}
