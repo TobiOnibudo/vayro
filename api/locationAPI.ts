@@ -63,7 +63,19 @@ export const getAddress = async (lat: number, lon: number): Promise<{ address: s
 
     const houseNumber = address.house_number ? `${address.house_number}` : null;
     const road = address.road ? `${address.road}` : null;
-    const formattedAddress = road ? `${houseNumber}, ${road}` : 'Address not available';
+
+    // Some if else statements to format the address since the API format is not always consistent
+    let formattedAddress = '';
+    if (houseNumber && road) {
+      formattedAddress = `${houseNumber}, ${road}`;
+    } else if (houseNumber) {
+      formattedAddress = houseNumber;
+    } else if (road) {
+      formattedAddress = road;
+    } else {
+      formattedAddress = 'Address not available';
+    }
+    
     const postalCode = address.postcode || null;
     const city = address.city || null;
     const displayName = response.data.display_name 

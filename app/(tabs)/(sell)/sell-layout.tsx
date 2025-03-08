@@ -1,10 +1,10 @@
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { ref, set } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';
-import React, { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
-import { LoggedInUser, UserUpload } from '@/types/userSchema';
+import { UserUpload } from '@/types/userSchema';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
 import 'react-native-get-random-values';
@@ -13,38 +13,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import * as Location from 'expo-location';
 import { getAddress, getCoordinates } from '@/api/locationAPI';
-//import { useBottomTabSpacing } from '@/hooks/useBottomTabSpacing';
 import { useScrollToInput } from '@/hooks/useScrollToInput';
-
-
+import { useLoadUser } from '@/hooks/useLoadUser';
 //Notes: when switching screens, need to make sure to turn showCamera false
 
 export default function SellScreen() {
   const router = useRouter();
-  const [user, setUser] = React.useState<LoggedInUser | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { user, loadUser } = useLoadUser(setIsLoading);
+
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const cameraRef = useRef<CameraView | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  //const bottomSpacing = useBottomTabSpacing();
-
-  const [isLoading, setIsLoading] = useState(false);
+  
   const { scrollToInput, scrollViewRef } = useScrollToInput();
 
-  React.useEffect(() => {
-    const loadUser = async () => {
-      setIsLoading(true);
-      const userDataString = await AsyncStorage.getItem('userData');
-      if (userDataString) {
-        const userData = JSON.parse(userDataString);
-        setUser(userData);
-      }
-      setIsLoading(false);
-    };
+  useEffect(() => {
     loadUser();
   }, []);
+
 
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
