@@ -124,28 +124,39 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
         {/* Title Price Input */}
         <View style={tw`mt-5`}>
-          {['Title', 'Price'].map((field, index) => (
-            <View style={tw`shadow-md mb-8`} key={index}>
-              <Text style={tw`text-gray-700 mb-1 ml-1 text-3.5`}>
-                {field === 'Title' ? 'Title*' : 'Price*'}
-              </Text>
-              <TextInput
-                style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
-                placeholder={field}
-                value={String(uploadData[field.toLowerCase() as keyof UserUpload])}
-                onChangeText={(text) =>
-                  setData(prev => ({ ...prev, [field.toLowerCase()]: text }))
-                }
-                secureTextEntry={field === 'Password'}
-                placeholderTextColor={tw.color('gray-500')}
-                keyboardType={field === 'Email' ? 'email-address' : (field === 'Phone' ? 'phone-pad' : 'default')}
-              />
-            </View>
-          ))}
+          {/* Title Input */}
+          <View style={tw`shadow-md mb-8`}>
+            <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Title</Text>
+            <TextInput
+              style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
+              placeholder="Title"
+              value={String(uploadData.title)}
+              onChangeText={(text) =>
+                setData(prev => ({ ...prev, title: text }))
+              }
+              placeholderTextColor={tw.color('gray-500')}
+              keyboardType="default"
+            />
+          </View>
+
+          {/* Description */}
+          <View style={tw`flex-col mb-7 shadow-md`}>
+            <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Description</Text>
+            <TextInput
+              style={tw`w-full h-40 px-3 pb-28 bg-white rounded-lg border border-gray-200`}
+              placeholder="Description of item . . ."
+              value={uploadData.description}
+              onChangeText={(text) =>
+                setData(prev => ({ ...prev, description: text }))
+              }
+              placeholderTextColor={tw.color('gray-500')}
+            >
+            </TextInput>
+          </View>
 
           {/* Adding option to get current location */}
           <View>
-            <TouchableOpacity style={tw`flex-row my-2`} onPress={getLocation}>
+            <TouchableOpacity style={tw`flex-row mb-2`} onPress={getLocation}>
               <Ionicons name="paper-plane" size={20} color="black" />
               <Text style={[tw`underline ml-1`, { color: '#3f698d' }]}>Get Current Location</Text>
             </TouchableOpacity>
@@ -162,7 +173,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           ) : (
             <>
               {/* Address Input */}
-              <Text style={tw`text-gray-700 mb-1 ml-1 text-3.5`}>Street Address</Text>
+              <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Street Address</Text>
               <TextInput
                 style={tw`w-full shadow-md mb-8 px-4 py-3 bg-white rounded-lg border border-gray-200`}
                 placeholder="Address"
@@ -177,8 +188,8 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
               {/* City & Postal Form */}
               <View style={tw`flex-row justify-between mb-2`}>
-                <Text style={tw`text-gray-700 ml-1 text-3.5 w-[48%]`}>City</Text>
-                <Text style={tw`text-gray-700 ml-1 text-3.5 w-[48%]`}>Postal Code</Text>
+                <Text style={tw`text-gray-600 font-medium ml-1 w-[48%]`}>City</Text>
+                <Text style={tw`text-gray-600 font-medium ml-1 w-[48%]`}>Postal Code</Text>
               </View>
               <View
                 style={tw`flex-row shadow-md mb-8`}>
@@ -203,35 +214,20 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           )}
         </View>
 
-        {/* Description */}
-        <View style={tw`flex-col mb-7 shadow-md`}>
-          <Text style={tw`text-gray-700 mb-1 ml-1 text-3.5`}>Item Description</Text>
-          <TextInput
-            style={tw`w-full h-40 px-3 pb-28 bg-white rounded-lg border border-gray-200`}
-            placeholder="Description of item . . ."
-            value={uploadData.description}
-            onChangeText={(text) =>
-              setData(prev => ({ ...prev, description: text }))
-            }
-            placeholderTextColor={tw.color('gray-500')}
-            onFocus={() => scrollToInput(300)}>
-          </TextInput>
-        </View>
-
         {/* Photo Preview */}
+        <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Photo</Text>
         {uploadData.imageUrl ? (
           <View style={tw`mb-7 items-center`}>
-            <Text style={tw`text-gray-700 mb-2`}>Photo Preview:</Text>
             <View style={tw`w-full h-80 rounded-lg overflow-hidden shadow-md`}>
-              <Image 
-                source={{ uri: uploadData.imageUrl }} 
-                style={tw`w-full h-full`} 
+              <Image
+                source={{ uri: uploadData.imageUrl }}
+                style={tw`w-full h-full`}
                 resizeMode="cover"
               />
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={tw`mt-2 p-2 bg-red-500 rounded-full`}
-              onPress={() => setData({...uploadData, imageUrl: ''})}>
+              onPress={() => setData({ ...uploadData, imageUrl: '' })}>
               <Ionicons name="trash-outline" size={20} color="white" />
             </TouchableOpacity>
           </View>
@@ -244,6 +240,26 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           </View>
         )}
 
+        {/* Price Input */}
+        <View style={tw`shadow-md mb-8`}>
+          <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Price</Text>
+          <TextInput
+            style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
+            placeholder="Price"
+            value={String(uploadData.price)}
+            onChangeText={(text) => {
+              // Only allow numbers and one decimal point
+              const regex = /^\d*\.?\d*$/;
+              if (text === '' || regex.test(text)) {
+                setData(prev => ({ ...prev, price: text }))
+              }
+            }}
+            placeholderTextColor={tw.color('gray-500')}
+            keyboardType="decimal-pad"
+            onFocus={() => scrollToInput(700)}>
+          </TextInput>
+        </View>
+
         {/* Upload Button */}
         <View style={tw`items-center`}>
           <TouchableOpacity
@@ -253,7 +269,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             <Text style={tw`text-white text-center text-4.6`}>Upload</Text>
           </TouchableOpacity>
         </View>
-
 
         {showCamera && !photo && (
           <View style={tw`absolute top-10 left-0 right-0 bottom-0 w-100%`}>
