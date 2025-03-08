@@ -165,6 +165,21 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             </TextInput>
           </View>
 
+          <View style={tw`mb-4`}>
+            <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Year Bought</Text>
+            <TextInput
+              style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
+              onChangeText={(text) => {
+                const numericValue = text.replace(/[^0-9]/g, '');
+                setData(prev => ({ ...prev, boughtInYear: numericValue ? parseInt(numericValue) : 0 }));
+              }}
+              placeholder="Year bought"
+              keyboardType="number-pad"
+              maxLength={4}
+              onFocus={() => scrollToInput(400)}
+            />
+          </View>
+
           <View style={tw`mb-8 gap-4`}>
             <View>
               <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Condition</Text>
@@ -282,7 +297,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
                 }
                 placeholderTextColor={tw.color('gray-500')}
                 keyboardType="default"
-                onFocus={() => scrollToInput(100)}
+                onFocus={() => scrollToInput(700)}
               />
 
               {/* City & Postal Form */}
@@ -298,7 +313,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
                   value={uploadData.city}
                   onChangeText={(text) => setData((prev: any) => ({ ...prev, city: text }))}
                   placeholderTextColor={tw.color('gray-500')}
-                  onFocus={() => scrollToInput(200)}
+                  onFocus={() => scrollToInput(700)}
                 />
                 <TextInput
                   style={tw`w-[48%] px-4 py-3 bg-white rounded-lg border border-gray-200`}
@@ -306,7 +321,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
                   value={uploadData.postal}
                   onChangeText={(text) => setData((prev: any) => ({ ...prev, postal: text }))}
                   placeholderTextColor={tw.color('gray-500')}
-                  onFocus={() => scrollToInput(200)}
+                  onFocus={() => scrollToInput(700)}
                 />
               </View>
             </>
