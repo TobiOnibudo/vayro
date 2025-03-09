@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Modal, Pressable } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -8,13 +8,9 @@ import { CameraView } from 'expo-camera';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
-import { uploadListing } from './_functions';
-import { Picker } from "@react-native-picker/picker";
-import { CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
+import { uploadListing } from './functions';
 import { LocationArea } from './_components/location-area';
-
-const ConditionPickerValues = ["", ...Object.values(CONDITIONS_VALUES)];
-const CategoryPickerValues = ["", ...Object.values(CATEGORIES_VALUES)];
+import { ItemArea } from './_components/item-area';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -26,9 +22,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [showConditionPicker, setShowConditionPicker] = useState(false);
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
 
   const { user, loadUser } = useLoadUser(setIsLoading);
 
@@ -122,150 +115,22 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           </TouchableOpacity>
         </View>
 
-        {/* Title Price Input */}
-        <View style={tw`mt-5`}>
-          {/* Title Input */}
-          <View style={tw`shadow-md mb-8`}>
-            <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Title</Text>
-            <TextInput
-              style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
-              placeholder="Title"
-              value={String(uploadData.title)}
-              onChangeText={(text) =>
-                setData(prev => ({ ...prev, title: text }))
-              }
-              placeholderTextColor={tw.color('gray-500')}
-              keyboardType="default"
-            />
-          </View>
+        <ItemArea
+          uploadData={uploadData}
+          setData={setData}
+          setError={setError}
+          setIsLoading={setIsLoading}
+          scrollToInput={scrollToInput}
+        />
 
-          {/* Description */}
-          <View style={tw`flex-col mb-7 shadow-md`}>
-            <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Description</Text>
-            <TextInput
-              style={tw`w-full h-40 px-3 pb-28 bg-white rounded-lg border border-gray-200`}
-              placeholder="Description of item . . ."
-              value={uploadData.description}
-              onChangeText={(text) =>
-                setData(prev => ({ ...prev, description: text }))
-              }
-              placeholderTextColor={tw.color('gray-500')}
-            >
-            </TextInput>
-          </View>
-
-          <View style={tw`mb-4`}>
-            <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Year Bought</Text>
-            <TextInput
-              style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
-              onChangeText={(text) => {
-                const numericValue = text.replace(/[^0-9]/g, '');
-                setData(prev => ({ ...prev, boughtInYear: numericValue ? parseInt(numericValue) : 0 }));
-              }}
-              placeholder="Year bought"
-              keyboardType="number-pad"
-              maxLength={4}
-              onFocus={() => scrollToInput(400)}
-            />
-          </View>
-
-          <View style={tw`mb-8 gap-4`}>
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Condition</Text>
-              <Pressable
-                style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
-                onPress={() => setShowConditionPicker(true)}
-              >
-                <Text>{uploadData.condition || 'Select condition'}</Text>
-              </Pressable>
-              <Modal
-                visible={showConditionPicker}
-                transparent
-                animationType="slide"
-              >
-                <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
-                  <View style={tw`bg-white w-full`}>
-                    <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
-                      <Pressable
-                        onPress={() => setShowConditionPicker(false)}
-                        style={tw`px-4 py-2`}
-                      >
-                        <Text style={tw`text-blue-600 font-medium`}>Done</Text>
-                      </Pressable>
-                    </View>
-                    <Picker
-                      selectedValue={uploadData.condition}
-                      onValueChange={(itemValue) => {
-                        setData(prev => ({ ...prev, condition: itemValue }));
-                      }}
-                    >
-                      {ConditionPickerValues.map((condition) => (
-                        <Picker.Item
-                          key={condition}
-                          label={condition.charAt(0).toUpperCase() + condition.slice(1)}
-                          value={condition}
-                          color="black"
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                </View>
-              </Modal>
-            </View>
-
-            <View>
-              <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Category</Text>
-              <Pressable
-                style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
-                onPress={() => setShowCategoryPicker(true)}
-              >
-                <Text>{uploadData.category || 'Select category'}</Text>
-              </Pressable>
-              <Modal
-                visible={showCategoryPicker}
-                transparent
-                animationType="slide"
-              >
-                <View style={tw`flex-1 justify-end bg-black bg-opacity-50`}>
-                  <View style={tw`bg-white w-full`}>
-                    <View style={tw`flex-row justify-end p-2 border-b border-gray-200`}>
-                      <Pressable
-                        onPress={() => setShowCategoryPicker(false)}
-                        style={tw`px-4 py-2`}
-                      >
-                        <Text style={tw`text-blue-600 font-medium`}>Done</Text>
-                      </Pressable>
-                    </View>
-                    <Picker
-                      selectedValue={uploadData.category}
-                      onValueChange={(itemValue) => {
-                        setData(prev => ({ ...prev, category: itemValue }));
-                      }}
-                    >
-                      {CategoryPickerValues.map((category) => (
-                        <Picker.Item
-                          key={category}
-                          label={category.charAt(0).toUpperCase() + category.slice(1)}
-                          value={category}
-                          color="black"
-                        />
-                      ))}
-                    </Picker>
-                  </View>
-                </View>
-              </Modal>
-            </View>
-          </View>
-
-          {/* Location */}
-          <LocationArea
-            uploadData={uploadData}
-            setData={setData}
-            setIsLoading={setIsLoading}
-            isLoading={isLoading}
-            scrollToInput={scrollToInput}
-          />
-        </View>
+        {/* Location */}
+        <LocationArea
+          uploadData={uploadData}
+          setData={setData}
+          setIsLoading={setIsLoading}
+          isLoading={isLoading}
+          scrollToInput={scrollToInput}
+        />
 
         {/* Photo Preview */}
         <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Photo</Text>
@@ -361,14 +226,18 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
         {/* Photo Preview and Selection*/}
         {photo && (
-          <View style={tw`absolute top-10 left-0 right-0 bottom--10 flex-1 justify-center items-center z-10 bg-gray-100`}>
-            <Image source={{ uri: photo }} style={tw`w-full h-40% rounded-lg`} />
-            <View style={tw`flex-row justify-between mt-4`}>
-              <TouchableOpacity onPress={() => setPhoto(null)} style={tw`p-3 mr-10 bg-gray-400 rounded-full`}>
-                <Ionicons name="close" size={25} color="white" />
+          <View style={tw`absolute top-8% bottom-10% left-0 right-0 justify-start items-center z-10 bg-white bg-opacity-95 h-50% p-2`}>
+            <Image source={{ uri: photo }} style={tw`w-90% h-80% rounded-lg`} />
+            <View style={tw`flex-row justify-center mt-4 w-full`}>
+              <TouchableOpacity 
+                onPress={() => setPhoto(null)} 
+                style={tw`p-4 mr-10 bg-red-500 rounded-full shadow-md`}>
+                <Ionicons name="close" size={28} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={selectPhoto} style={tw`p-3 bg-green-500 rounded-full`}>
-                <Ionicons name="checkmark" size={25} color="white" />
+              <TouchableOpacity 
+                onPress={selectPhoto} 
+                style={tw`p-4 bg-green-500 rounded-full shadow-md`}>
+                <Ionicons name="checkmark" size={28} color="white" />
               </TouchableOpacity>
             </View>
           </View>

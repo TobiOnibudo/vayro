@@ -1,6 +1,6 @@
 import { UserUpload } from "@/types/userSchema";
 import { Alert, ActivityIndicator, Text, TextInput, View, TouchableOpacity } from "react-native";
-import { getCurrentLocation } from "../_functions";
+import { getCurrentLocation } from "../functions";
 import tw from "twrnc";
 import { Ionicons } from "@expo/vector-icons";
 
