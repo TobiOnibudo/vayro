@@ -1,5 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Modal, Pressable } from 'react-native';
-import { uploadListing } from "../functions";
+import { View, Text, TextInput, Modal, Pressable } from 'react-native';
 import { UserUpload } from "@/types/userSchema";
 import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
@@ -57,6 +56,7 @@ export function ItemArea({
               setData({ ...uploadData, description: text })
             }
             placeholderTextColor={tw.color('gray-500')}
+            onFocus={() => scrollToInput(100)}
           >
           </TextInput>
         </View>

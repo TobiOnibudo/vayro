@@ -11,6 +11,7 @@ import { useCamera } from '@/hooks/useCamera';
 import { uploadListing } from './functions';
 import { LocationArea } from './_components/location-area';
 import { ItemArea } from './_components/item-area';
+import { SellHeader } from './_components/sell-header';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -89,28 +90,13 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   return (
     <ScrollView style={tw`flex-1 bg-gray-100 px-7 mb-20`}>
       <SafeAreaView>
-        {/* Back Button*/}
-        <View style={tw`px-4 pt-2 pb-4 flex-row justify-between`}>
-          <TouchableOpacity
-            onPress={() => router.push('/')}
-            style={[tw`w-13 h-7 bg-[#ACA592] rounded-full flex-row items-center justify-center`, { marginLeft: -10 }]}>
-            <Ionicons name="arrow-back" size={18} color="white" />
-          </TouchableOpacity>
-          {/* Ask Gemini Price Suggestion Button */}
-          <TouchableOpacity
-            onPress={() => router.push('/(price-suggestion)/request-price')}
-            style={tw`p-2 bg-blue-500 rounded-full`}>
-            <MaterialIcons name="price-check" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+        <SellHeader />
 
-        <View style={tw`flex-row justify-between px-4 pt-2`}>
-          <Text style={[tw`text-6 pt-3`, { fontWeight: '400' }]}>Sell</Text>
-
-          {/* Expo Camera */}
+        {/* Expo Camera */}
+        <View style={tw`flex-row justify-end`}>
           <TouchableOpacity
             onPress={() => setShowCamera(!showCamera)}
-            style={tw`p-2 w-10 bg-[#ACA592] rounded-full`}>
+            style={tw`p-2 w-10 bg-[#ACA592] rounded-full mr-4`}>
             <Ionicons name="camera" size={25} color="white" />
           </TouchableOpacity>
         </View>
@@ -174,7 +160,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             }}
             placeholderTextColor={tw.color('gray-500')}
             keyboardType="decimal-pad"
-            onFocus={() => scrollToInput(700)}>
+            onFocus={() => scrollToInput(1000)}>
           </TextInput>
           {/* Ask AI for price suggestion */}
           <View>
