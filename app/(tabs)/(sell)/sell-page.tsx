@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ActivityIndicator, Alert, ScrollView, Modal, Pressable } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Modal, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -8,9 +8,10 @@ import { CameraView } from 'expo-camera';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
 import { useCamera } from '@/hooks/useCamera';
-import { getCurrentLocation, uploadListing } from './_functions';
+import { uploadListing } from './_functions';
 import { Picker } from "@react-native-picker/picker";
 import { CONDITIONS_VALUES, CATEGORIES_VALUES } from "@/types/priceSuggestionFormSchema";
+import { LocationArea } from './_components/location-area';
 
 const ConditionPickerValues = ["", ...Object.values(CONDITIONS_VALUES)];
 const CategoryPickerValues = ["", ...Object.values(CATEGORIES_VALUES)];
@@ -72,18 +73,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     // Set Camera off and set photo to null
     setShowCamera(false);
     setPhoto(null);
-  }
-
-  const getLocation = async () => {
-    setIsLoading(true);
-    const location = await getCurrentLocation();
-    if (location) {
-      setData({ ...uploadData, ...location.coords, address: location.address ?? "", postal: location.postal ?? "", city: location.city ?? "" });
-    }
-    else {
-      Alert.alert('Error getting location:', 'Please try again');
-    }
-    setIsLoading(false);
   }
 
   const handleUpload = async () => {
@@ -268,64 +257,14 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             </View>
           </View>
 
-          {/* Adding option to get current location */}
-          <View>
-            <TouchableOpacity style={tw`flex-row mb-2`} onPress={getLocation}>
-              <Ionicons name="paper-plane" size={20} color="black" />
-              <Text style={[tw`underline ml-1`, { color: '#3f698d' }]}>Get Current Location</Text>
-            </TouchableOpacity>
-          </View>
-
-          {isLoading ? (
-            <View style={tw`flex-col my-8 items-center justify-center gap-2`}>
-              <ActivityIndicator
-                size="large"
-                color="#ACA592"
-              />
-              <Text style={tw`text-center text-gray-500`}>Getting your location...</Text>
-            </View>
-          ) : (
-            <>
-              {/* Address Input */}
-              <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Street Address</Text>
-              <TextInput
-                style={tw`w-full shadow-md mb-4 px-4 py-3 bg-white rounded-lg border border-gray-200`}
-                placeholder="Address"
-                value={uploadData.address}
-                onChangeText={(text) =>
-                  setData((prev) => ({ ...prev, address: text }))
-                }
-                placeholderTextColor={tw.color('gray-500')}
-                keyboardType="default"
-                onFocus={() => scrollToInput(700)}
-              />
-
-              {/* City & Postal Form */}
-              <View style={tw`flex-row justify-between mb-2`}>
-                <Text style={tw`text-gray-600 font-medium ml-1 w-[48%]`}>City</Text>
-                <Text style={tw`text-gray-600 font-medium ml-1 w-[48%]`}>Postal Code</Text>
-              </View>
-              <View
-                style={tw`flex-row shadow-md mb-8`}>
-                <TextInput
-                  style={tw`w-[48%] px-4 py-3 mr-3 bg-white rounded-lg border border-gray-200 `}
-                  placeholder="City"
-                  value={uploadData.city}
-                  onChangeText={(text) => setData((prev: any) => ({ ...prev, city: text }))}
-                  placeholderTextColor={tw.color('gray-500')}
-                  onFocus={() => scrollToInput(700)}
-                />
-                <TextInput
-                  style={tw`w-[48%] px-4 py-3 bg-white rounded-lg border border-gray-200`}
-                  placeholder="Postal"
-                  value={uploadData.postal}
-                  onChangeText={(text) => setData((prev: any) => ({ ...prev, postal: text }))}
-                  placeholderTextColor={tw.color('gray-500')}
-                  onFocus={() => scrollToInput(700)}
-                />
-              </View>
-            </>
-          )}
+          {/* Location */}
+          <LocationArea
+            uploadData={uploadData}
+            setData={setData}
+            setIsLoading={setIsLoading}
+            isLoading={isLoading}
+            scrollToInput={scrollToInput}
+          />
         </View>
 
         {/* Photo Preview */}
