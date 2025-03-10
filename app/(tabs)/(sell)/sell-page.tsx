@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { UserUpload } from '@/types/userSchema';
-import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
+import { Ionicons, Feather } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
@@ -71,6 +71,15 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
   const handleUpload = async () => {
     await uploadListing(uploadData, setData, setError, setIsLoading);
+  }
+
+  const handlePriceSuggestion = async () => {
+    await router.push({
+      pathname: "./(price-assistant)/price-assistant",
+      params: {
+        paramsData: JSON.stringify(uploadData)
+      }
+    });
   }
 
   if (!permission) {
@@ -164,7 +173,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           </TextInput>
           {/* Ask AI for price suggestion */}
           <View>
-            <TouchableOpacity style={tw`flex-row mt-2`} onPress={() => router.push('/(price-suggestion)/request-price')}>
+            <TouchableOpacity style={tw`flex-row mt-2`} onPress={handlePriceSuggestion}>
               <Feather name="info" size={20} color="black" />
               <Text style={[tw`underline ml-1`, { color: '#3f698d' }]}>Don't know the price? Ask our AI</Text>
             </TouchableOpacity>
