@@ -18,7 +18,7 @@ export default function PriceAssistant() {
     boughtInYear: userUploadData.boughtInYear
   }
 
-  const { data, isLoading, error } = usePriceSuggestion(JSON.stringify(priceSuggestionForm));
+  const { data, isLoading, error } = usePriceSuggestion(priceSuggestionForm);
 
   if (error) {
     return (

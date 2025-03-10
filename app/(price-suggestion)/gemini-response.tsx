@@ -3,10 +3,18 @@ import { useLocalSearchParams } from "expo-router";
 import tw from "twrnc";
 import { usePriceSuggestion } from "@/hooks/usePriceSuggestion";
 import { ResponseLayout } from "./_components/response-layout";
+import { FormSchema } from "@/types/priceSuggestionFormSchema";
+import { useMemo } from "react";
 
 export default function GeminiResponseScreen() {
   const { paramsData } = useLocalSearchParams<{ paramsData: string }>();
-  const { data, isLoading, error } = usePriceSuggestion(paramsData);
+  
+  // Use useMemo to prevent creating a new object on each render
+  const formData = useMemo<FormSchema>(() => {
+    return JSON.parse(paramsData);
+  }, [paramsData]);
+  
+  const { data, isLoading, error } = usePriceSuggestion(formData);
 
   if (error) {
     return (
