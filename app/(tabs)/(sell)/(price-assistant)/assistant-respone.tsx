@@ -1,8 +1,26 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
+import { useRouter } from "expo-router";
+import { useStore } from "@/global-store/useStore";
 
 export function AssistantResponse({ data }: { data: GeminiResponseData }) {
+  const price = data.suggestedPrice;
+  const router = useRouter();
+  const setPriceData = useStore(state => state.setPriceData);
+
+  function handleApplyPrice() {
+    // Store the price data in the global store
+    setPriceData({
+      suggestedPrice: data.suggestedPrice,
+      priceRange: data.priceRange,
+      confidence: data.confidence,
+      reason: data.reason
+    });
+    
+    router.push("../");
+  }
+
   return (
     <View style={tw`gap-6`}>
       <View style={tw`bg-stone-100 rounded-xl p-6`}>
@@ -78,13 +96,16 @@ export function AssistantResponse({ data }: { data: GeminiResponseData }) {
         </View>
       </View>
 
-      <View style={tw`bg-green-50 rounded-xl p-6`}>
-        <Text style={tw`text-lg font-semibold text-gray-900 mb-2`}>
-          Recommended Description
-        </Text>
-        <Text style={tw`text-base text-gray-700 leading-6`}>
-          {data.recommendedDescription}
-        </Text>
+      <View style={tw`mt-2 mb-2`}>
+        <TouchableOpacity 
+          style={tw`bg-[#ACA592] py-3 px-4 rounded-lg items-center`}
+          activeOpacity={0.8}
+          onPress={handleApplyPrice}
+        >
+          <Text style={tw`text-white font-semibold text-base`}>
+            Apply Suggested Price
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View style={tw`bg-gray-50 rounded-xl p-6`}>

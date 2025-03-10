@@ -12,7 +12,7 @@ import { uploadListing } from './functions';
 import { LocationArea } from './_components/location-area';
 import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
-
+import { useStore } from '@/global-store/useStore';
 type SellPageProps = {
   scrollToInput: (y: number) => void;
 }
@@ -39,10 +39,6 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     setPhoto
   } = useCamera();
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
   const [uploadData, setData] = useState<UserUpload>({
     title: '',
     price: '',
@@ -58,6 +54,21 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     category: 'Furniture',
     boughtInYear: 0,
   })
+
+  useEffect(() => {
+    loadUser();
+
+    // Subscribe to store changes
+    const unsubscribe = useStore.subscribe((state) => {
+      const suggestedPrice = state.suggestedPrice;
+      if (suggestedPrice) {
+        setData(prev => ({ ...prev, price: suggestedPrice.toString() }));
+      }
+    });
+
+    // Cleanup
+    return () => unsubscribe();
+  }, []);
 
   const selectPhoto = async () => {
     if (photo) {

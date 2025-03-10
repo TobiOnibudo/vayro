@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { ref, set } from 'firebase/database';
 import { v1 as uuidv1 } from 'uuid';
 import 'react-native-get-random-values'
+import { Alert } from 'react-native';
 
 interface LocationObject extends Location.LocationObject {
   address: string | null;
@@ -56,7 +57,8 @@ export async function uploadListing(
   const user = JSON.parse(userData)
   console.log(uploadData);
 
-  if (uploadData.address && uploadData.city && uploadData.postal) {
+  if (uploadData.address && uploadData.city && uploadData.postal && uploadData.title && uploadData.description && uploadData.price && uploadData.category && uploadData.condition && uploadData.boughtInYear) {
+    
       const displayName = `${uploadData.address} ${uploadData.city} ${uploadData.postal}`
       let coords;
       const coordinatesFromAddress = await getCoordinates(displayName);
@@ -101,12 +103,15 @@ export async function uploadListing(
       // Save upload to database
       await set(ref(database, '/listings/' + listingDetails.lid), listingDetails);
 
-      router.push(`/listings/${listingDetails.lid}`)    
+      router.push(`../../listings/${listingDetails.lid}`)    
     }
     catch (error: any) {
       console.error("Uploading error:", error.message); 
       setError("Uploading error: " + error.message);
     }
     setIsLoading(false);
+  }
+  else {
+    Alert.alert("Please fill out all fields");
   }
 }
