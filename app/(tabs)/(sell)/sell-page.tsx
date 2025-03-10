@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -74,12 +74,16 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   }
 
   const handlePriceSuggestion = async () => {
-    await router.push({
-      pathname: "./(price-assistant)/price-assistant",
-      params: {
-        paramsData: JSON.stringify(uploadData)
-      }
-    });
+    if (uploadData.boughtInYear && uploadData.condition && uploadData.category && uploadData.description && uploadData.title) {
+      await router.push({
+        pathname: "./(price-assistant)/price-assistant",
+        params: {
+          paramsData: JSON.stringify(uploadData)
+        }
+      });
+    } else {
+      Alert.alert("Please fill out all product related fields");
+    }
   }
 
   if (!permission) {
@@ -228,13 +232,13 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           <View style={tw`absolute top-8% bottom-10% left-0 right-0 justify-start items-center z-10 bg-white bg-opacity-95 h-50% p-2`}>
             <Image source={{ uri: photo }} style={tw`w-90% h-80% rounded-lg`} />
             <View style={tw`flex-row justify-center mt-4 w-full`}>
-              <TouchableOpacity 
-                onPress={() => setPhoto(null)} 
+              <TouchableOpacity
+                onPress={() => setPhoto(null)}
                 style={tw`p-4 mr-10 bg-red-500 rounded-full shadow-md`}>
                 <Ionicons name="close" size={28} color="white" />
               </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={selectPhoto} 
+              <TouchableOpacity
+                onPress={selectPhoto}
                 style={tw`p-4 bg-green-500 rounded-full shadow-md`}>
                 <Ionicons name="checkmark" size={28} color="white" />
               </TouchableOpacity>
