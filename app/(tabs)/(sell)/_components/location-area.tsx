@@ -79,7 +79,7 @@ export function LocationArea({
               value={uploadData.city}
               onChangeText={(text) => setData({ ...uploadData, city: text })}
               placeholderTextColor={tw.color('gray-500')}
-              onFocus={() => scrollToInput(700)}
+              onFocus={() => scrollToInput(800)}
             />
             <TextInput
               style={tw`w-[48%] px-4 py-3 bg-white rounded-lg border border-gray-200`}
@@ -87,7 +87,7 @@ export function LocationArea({
               value={uploadData.postal}
               onChangeText={(text) => setData({ ...uploadData, postal: text })}
               placeholderTextColor={tw.color('gray-500')}
-              onFocus={() => scrollToInput(700)}
+              onFocus={() => scrollToInput(800)}
             />
           </View>
         </>

@@ -29,7 +29,7 @@ export function ItemArea({
   return (
     <>
       {/* Title Input */}
-      <View style={tw`mt-5`}>
+      <View>
         {/* Title Input */}
         <View style={tw`shadow-md mb-8`}>
           <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Title</Text>

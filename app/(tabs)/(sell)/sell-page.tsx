@@ -110,6 +110,8 @@ export function SellPage({ scrollToInput }: SellPageProps) {
           </TouchableOpacity>
         </View>
 
+        {/* Product */}
+        <Text style={tw`text-gray-700 text-3xl font-bold mb-3 ml-1`}>Product</Text>
         <ItemArea
           uploadData={uploadData}
           setData={setData}
@@ -119,6 +121,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
         />
 
         {/* Location */}
+        <Text style={tw`text-gray-700 text-3xl font-bold mb-3 ml-1`}>Location</Text>
         <LocationArea
           uploadData={uploadData}
           setData={setData}
@@ -128,6 +131,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
         />
 
         {/* Photo Preview */}
+        <Text style={tw`text-gray-700 text-3xl font-bold mb-3 ml-1`}>Details</Text>
         <Text style={tw`text-gray-600 font-medium mb-1 ml-1`}>Photo</Text>
         {uploadData.imageUrl ? (
           <View style={tw`mb-7 items-center`}>
