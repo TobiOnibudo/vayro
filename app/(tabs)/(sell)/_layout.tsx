@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 export default function PriceSuggestionLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="sell-layout" options={{
+      <Stack.Screen name="sell-wrapper" options={{
         headerShown: false,
         title: "",
         headerBackVisible: false
