@@ -54,6 +54,16 @@ export default function ListingDetailPage() {
   }, []);
 
   useEffect( () => {
+
+    const loadUser = async () => {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        setUser(userData);
+      }
+    };
+    loadUser();
+
     const getListing = async () => {
       const localListing = demoListings.find(item => item.lid === listingId);
       if (localListing) 
@@ -277,15 +287,46 @@ export default function ListingDetailPage() {
               </View>
             )}
 
-            {/* Seller Info */}
-            <View style={tw`border-t border-gray-300 pt-4`}>
-              <Text style={tw`text-lg font-semibold text-gray-800 mb-2`}>Seller Information</Text>
-              <Text style={tw`text-gray-600`}>Name: {listing.seller.name}</Text>
-              <Text style={tw`text-gray-600`}>Email: {listing.seller.email}</Text>
-            </View>
-          </ScrollView>
-        </TouchableWithoutFeedback>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+        {/* Seller Info */}
+        <View style={tw`border-t border-gray-300 pt-4`}>
+          <Text style={tw`text-lg font-semibold text-gray-800 mb-2`}>Seller Information</Text>
+          <Text style={tw`text-gray-600`}>Name: {listing.seller.name}</Text>
+          <Text style={tw`text-gray-600`}>Email: {listing.seller.email}</Text>
+          
+          {/* Show different buttons based on whether user is seller or buyer */}
+          {user?.uid === listing.seller.uid ? (
+            // Seller View - Show View Chats button
+            <TouchableOpacity 
+              onPress={() => {
+                router.push({
+                  pathname: `/listings/seller-chats/${listing.lid}`,
+                  params: { listingId: listing.lid }
+                });
+              }}
+              style={tw`mt-4 bg-[#ACA592] py-3 px-4 rounded-lg`}
+            >
+              <Text style={tw`text-white font-semibold text-center`}>View All Chats</Text>
+            </TouchableOpacity>
+          ) : (
+            // Buyer View - Show Chat with Seller button
+            <TouchableOpacity 
+              onPress={() => {
+                router.push({
+                  pathname: `/listings/chats/${listing.lid}`, 
+                  params: { 
+                    listingId: listing.lid, 
+                    sellerId: listing.seller.uid,
+                    sellerName: listing.seller.name
+                  }
+                });
+              }}
+              style={tw`mt-4 bg-[#ACA592] py-3 px-4 rounded-lg`}
+            >
+              <Text style={tw`text-white font-semibold text-center`}>Chat with Seller</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 } 
