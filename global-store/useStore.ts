@@ -5,6 +5,7 @@ type PriceState = {
   priceRange: number[] | null;
   confidence: number | null;
   reason: string[] | string | null;
+  recommendedDescription: string | null;
   
   // Actions
   setSuggestedPrice: (price: number) => void;
@@ -18,6 +19,7 @@ type PriceState = {
     reason: string[] | string;
   }) => void;
   resetPriceData: () => void;
+  setRecommendedDescription: (description: string) => void;
 }
 
 export const useStore = create<PriceState>((set) => ({
@@ -25,13 +27,14 @@ export const useStore = create<PriceState>((set) => ({
   priceRange: null,
   confidence: null,
   reason: null,
+  recommendedDescription: null,
   
   // Action implementations
   setSuggestedPrice: (price) => set({ suggestedPrice: price }),
   setPriceRange: (range) => set({ priceRange: range }),
   setConfidence: (confidence) => set({ confidence: confidence }),
   setReason: (reason) => set({ reason: reason }),
-  
+  setRecommendedDescription: (recommendedDescription) => set({ recommendedDescription: recommendedDescription }),
   // Set all price data at once
   setPriceData: (data) => set({
     suggestedPrice: data.suggestedPrice,
@@ -46,5 +49,6 @@ export const useStore = create<PriceState>((set) => ({
     priceRange: null,
     confidence: null,
     reason: null,
+    recommendedDescription: null,
   }),
 }));
