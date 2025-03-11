@@ -1,8 +1,27 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
+import { useStore } from "@/global-store/useStore";
+import { router } from "expo-router";
 
 export function ResponseLayout({ data }: { data: GeminiResponseData }) {
+  const {
+    recommendedDescription,
+    suggestedPrice,
+    setRecommendedDescription,
+    setSuggestedPrice
+  } = useStore();
+
+  console.log(recommendedDescription, suggestedPrice);
+
+  function addToSellPage() {
+    setRecommendedDescription(data.recommendedDescription);
+    setSuggestedPrice(data.suggestedPrice);
+
+    // TODO: Fix this
+    router.push("../../(sell)");
+  }
+
   return (
     <View style={tw`gap-6`}>
       <View style={tw`bg-stone-100 rounded-xl p-6`}>
@@ -109,6 +128,14 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
           </Text>
         )}
       </View>
+
+
+      <TouchableOpacity style={tw`bg-blue-500 rounded-xl p-4`} onPress={addToSellPage}>
+        <Text style={tw`text-white text-center`}>
+          Add to Sell Page
+        </Text>
+      </TouchableOpacity>
+
 
       <View style={tw`bg-yellow-50 rounded-xl p-6`}>
         <Text style={tw`text-sm text-gray-600 italic text-center`}>
