@@ -21,6 +21,7 @@ interface Message {
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [firstUnreadIndex, setFirstUnreadIndex] = useState<number>(-1);
   const [user, setUser] = useState<LoggedInUser | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const { 
@@ -37,6 +38,9 @@ export default function ChatScreen() {
     buyerName?: string;
   }>();
   const router = useRouter();
+    const chatPath = buyerId 
+      ? `chats/${listingId}/${buyerId}_${sellerId}`
+      : `chats/${listingId}/${user?.uid}_${sellerId}`;
 
   useEffect(() => {
     const loadUser = async () => {
@@ -52,15 +56,9 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (!user) return;
-    
-    // Determine the chat path based on whether we're the buyer or seller
-    const chatPath = buyerId 
-      ? `chats/${listingId}/${buyerId}_${sellerId}`
-      : `chats/${listingId}/${user.uid}_${sellerId}`;
       
     const chatRef = ref(database, chatPath);
     
-    // Set up real-time chat listener
     onValue(chatRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -75,21 +73,62 @@ export default function ChatScreen() {
           },
         }));
 
-        // Mark messages as read if they're from the other user
-        Object.entries(data).forEach(([key, msg]: [string, any]) => {
-          if (msg.user._id !== user.uid && !msg.read) {
-            update(ref(database, `${chatPath}/${key}`), { read: true });
-          }
-        });
-
-        setMessages(messageList.reverse());
+        // Sort messages by increasing time (oldest to newest)
+        const sortedMessages = messageList.sort((a, b) => 
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        
+        // Find the first unread message index
+        const unreadIndex = sortedMessages.findIndex(
+          msg => !msg.read && msg.user._id !== user.uid
+        );
+        
+        setFirstUnreadIndex(unreadIndex);
+          
+        // Since FlatList renders the list inverted, reversing the array 
+        setMessages(sortedMessages.reverse());
       }
     });
 
+   
     return () => {
+      // Removing listener
       off(chatRef);
+
+      // Marking all messages as read
+      onValue(chatRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          Object.entries(data).forEach(([messageKey, message]: [string, any]) => {
+            if (message.user._id !== user.uid && !message.read) {
+              update(ref(database, `${chatPath}/${messageKey}`), { read: true });
+            }
+          });
+        }
+      }, { onlyOnce: true });
     };
-  }, [sellerId, user, buyerId]);
+  }, [buyerId, user]);
+
+
+  // useEffect(() => {
+  //   if (user) {
+  //     const chatRef = ref(database, chatPath);
+      
+  //     // Get all messages once
+  //     onValue(chatRef, (snapshot) => {
+  //       if (snapshot.exists()) {
+  //         const data = snapshot.val();
+          
+  //         // Update read status for all unread messages not from current user
+  //         Object.entries(data).forEach(([messageKey, message]: [string, any]) => {
+  //           if (message.user._id !== user.uid && !message.read) {
+  //             update(ref(database, `${chatPath}/${messageKey}`), { read: true });
+  //           }
+  //         });
+  //       }
+  //     }, { onlyOnce: true }); // Only run once when component mounts
+  //   }
+  // }, [user, chatPath]);
 
   const sendMessage = useCallback(() => {
     if (!user || !newMessage.trim()) return;
@@ -149,6 +188,24 @@ export default function ChatScreen() {
     );
   };
 
+  const renderItem = ({ item, index }: { item: Message; index: number }) => {
+    // Since messages are reversed for display, adjust the index check
+    const showUnreadDivider = (messages.length - index) === firstUnreadIndex && firstUnreadIndex !== -1;
+
+    return (
+      <>
+        {showUnreadDivider && (
+          <View style={tw`flex-row items-center mx-4 my-4`}>
+            <View style={tw`flex-1 h-[1px] bg-gray-300`} />
+            <Text style={tw`mx-3 text-gray-500 text-sm`}>Unread</Text>
+            <View style={tw`flex-1 h-[1px] bg-gray-300`} />
+          </View>
+        )}
+        {renderMessage({ item })}
+      </>
+    );
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-50`}>
       <View style={tw`flex-row items-center p-4 border-b border-gray-200`}>
@@ -162,7 +219,7 @@ export default function ChatScreen() {
 
       <FlatList
         data={messages}
-        renderItem={renderMessage}
+        renderItem={renderItem}
         keyExtractor={item => item._id}
         inverted
         style={tw`flex-1`}
