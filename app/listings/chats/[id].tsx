@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, SafeAreaView, TextInput, TouchableOpacity, Text, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { database } from '@/config/firebaseConfig';
-import { ref, push, onValue, off } from 'firebase/database';
+import { ref, push, onValue, off, update } from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoggedInUser } from '@/types/userSchema';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ interface Message {
   _id: string;
   text: string;
   createdAt: string;
+  read?: boolean;
   user: {
     _id: string;
     name: string;
@@ -67,11 +68,20 @@ export default function ChatScreen() {
           _id: msg._id,
           text: msg.text,
           createdAt: msg.createdAt,
+          read: msg.read || false,
           user: {
             _id: msg.user._id,
             name: msg.user.name,
           },
         }));
+
+        // Mark messages as read if they're from the other user
+        Object.entries(data).forEach(([key, msg]: [string, any]) => {
+          if (msg.user._id !== user.uid && !msg.read) {
+            update(ref(database, `${chatPath}/${key}`), { read: true });
+          }
+        });
+
         setMessages(messageList.reverse());
       }
     });
@@ -119,12 +129,22 @@ export default function ChatScreen() {
           tw`text-base`,
           isCurrentUser ? tw`text-white` : tw`text-gray-800`
         ]}>{item.text}</Text>
-        <Text style={[
-          tw`text-xs mt-1`,
-          isCurrentUser ? tw`text-gray-100` : tw`text-gray-500`
-        ]}>
-          {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
+        <View style={tw`flex-row justify-between items-center mt-1`}>
+          <Text style={[
+            tw`text-xs`,
+            isCurrentUser ? tw`text-gray-100` : tw`text-gray-500`
+          ]}>
+            {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+          {isCurrentUser && (
+            <Ionicons 
+              name={item.read ? "checkmark-done" : "checkmark"} 
+              size={16} 
+              color="white" 
+              style={tw`ml-2`}
+            />
+          )}
+        </View>
       </View>
     );
   };
