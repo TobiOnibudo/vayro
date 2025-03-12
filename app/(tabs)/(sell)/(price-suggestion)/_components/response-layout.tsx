@@ -12,14 +12,12 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
     setSuggestedPrice
   } = useStore();
 
-  console.log(recommendedDescription, suggestedPrice);
-
   function addToSellPage() {
     setRecommendedDescription(data.recommendedDescription);
     setSuggestedPrice(data.suggestedPrice);
 
     // TODO: Fix this
-    router.push("../../(sell)");
+    router.back();
   }
 
   return (

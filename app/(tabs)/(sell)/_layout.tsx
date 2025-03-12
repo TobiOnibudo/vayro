@@ -13,6 +13,12 @@ export default function PriceSuggestionLayout() {
         title: "Price Assistant",
         headerBackVisible: true
       }} />
+
+      <Stack.Screen name="(price-suggestion)" options={{
+        headerShown: true,
+        title: "Price Suggestion",
+        headerBackVisible: true
+      }} />
     </Stack>
   );
 }
