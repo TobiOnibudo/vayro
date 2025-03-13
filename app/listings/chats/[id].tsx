@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, SafeAreaView, TextInput, TouchableOpacity, Text, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { database } from '@/config/firebaseConfig';
-import { ref, push, onValue, off } from 'firebase/database';
+import { ref, push, onValue, off, update } from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LoggedInUser } from '@/types/userSchema';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +12,7 @@ interface Message {
   _id: string;
   text: string;
   createdAt: string;
+  read?: boolean;
   user: {
     _id: string;
     name: string;
@@ -20,6 +21,7 @@ interface Message {
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [firstUnreadIndex, setFirstUnreadIndex] = useState<number>(-1);
   const [user, setUser] = useState<LoggedInUser | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const { 
@@ -36,6 +38,9 @@ export default function ChatScreen() {
     buyerName?: string;
   }>();
   const router = useRouter();
+    const chatPath = buyerId 
+      ? `chats/${listingId}/${buyerId}_${sellerId}`
+      : `chats/${listingId}/${user?.uid}_${sellerId}`;
 
   useEffect(() => {
     const loadUser = async () => {
@@ -51,15 +56,9 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (!user) return;
-    
-    // Determine the chat path based on whether we're the buyer or seller
-    const chatPath = buyerId 
-      ? `chats/${listingId}/${buyerId}_${sellerId}`
-      : `chats/${listingId}/${user.uid}_${sellerId}`;
       
     const chatRef = ref(database, chatPath);
     
-    // Set up real-time chat listener
     onValue(chatRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
@@ -67,19 +66,69 @@ export default function ChatScreen() {
           _id: msg._id,
           text: msg.text,
           createdAt: msg.createdAt,
+          read: msg.read || false,
           user: {
             _id: msg.user._id,
             name: msg.user.name,
           },
         }));
-        setMessages(messageList.reverse());
+
+        // Sort messages by increasing time (oldest to newest)
+        const sortedMessages = messageList.sort((a, b) => 
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        
+        // Find the first unread message index
+        const unreadIndex = sortedMessages.findIndex(
+          msg => !msg.read && msg.user._id !== user.uid
+        );
+        
+        setFirstUnreadIndex(unreadIndex);
+          
+        // Since FlatList renders the list inverted, reversing the array 
+        setMessages(sortedMessages.reverse());
       }
     });
 
+   
     return () => {
+      // Removing listener
       off(chatRef);
+
+      // Marking all messages as read
+      onValue(chatRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          Object.entries(data).forEach(([messageKey, message]: [string, any]) => {
+            if (message.user._id !== user.uid && !message.read) {
+              update(ref(database, `${chatPath}/${messageKey}`), { read: true });
+            }
+          });
+        }
+      }, { onlyOnce: true });
     };
-  }, [sellerId, user, buyerId]);
+  }, [buyerId, user]);
+
+
+  // useEffect(() => {
+  //   if (user) {
+  //     const chatRef = ref(database, chatPath);
+      
+  //     // Get all messages once
+  //     onValue(chatRef, (snapshot) => {
+  //       if (snapshot.exists()) {
+  //         const data = snapshot.val();
+          
+  //         // Update read status for all unread messages not from current user
+  //         Object.entries(data).forEach(([messageKey, message]: [string, any]) => {
+  //           if (message.user._id !== user.uid && !message.read) {
+  //             update(ref(database, `${chatPath}/${messageKey}`), { read: true });
+  //           }
+  //         });
+  //       }
+  //     }, { onlyOnce: true }); // Only run once when component mounts
+  //   }
+  // }, [user, chatPath]);
 
   const sendMessage = useCallback(() => {
     if (!user || !newMessage.trim()) return;
@@ -119,13 +168,41 @@ export default function ChatScreen() {
           tw`text-base`,
           isCurrentUser ? tw`text-white` : tw`text-gray-800`
         ]}>{item.text}</Text>
-        <Text style={[
-          tw`text-xs mt-1`,
-          isCurrentUser ? tw`text-gray-100` : tw`text-gray-500`
-        ]}>
-          {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
+        <View style={tw`flex-row justify-between items-center mt-1`}>
+          <Text style={[
+            tw`text-xs`,
+            isCurrentUser ? tw`text-gray-100` : tw`text-gray-500`
+          ]}>
+            {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Text>
+          {isCurrentUser && (
+            <Ionicons 
+              name={item.read ? "checkmark-done" : "checkmark"} 
+              size={16} 
+              color="white" 
+              style={tw`ml-2`}
+            />
+          )}
+        </View>
       </View>
+    );
+  };
+
+  const renderItem = ({ item, index }: { item: Message; index: number }) => {
+    // Since messages are reversed for display, adjust the index check
+    const showUnreadDivider = (messages.length - index) === firstUnreadIndex && firstUnreadIndex !== -1;
+
+    return (
+      <>
+        {showUnreadDivider && (
+          <View style={tw`flex-row items-center mx-4 my-4`}>
+            <View style={tw`flex-1 h-[1px] bg-gray-300`} />
+            <Text style={tw`mx-3 text-gray-500 text-sm`}>Unread</Text>
+            <View style={tw`flex-1 h-[1px] bg-gray-300`} />
+          </View>
+        )}
+        {renderMessage({ item })}
+      </>
     );
   };
 
@@ -142,7 +219,7 @@ export default function ChatScreen() {
 
       <FlatList
         data={messages}
-        renderItem={renderMessage}
+        renderItem={renderItem}
         keyExtractor={item => item._id}
         inverted
         style={tw`flex-1`}
