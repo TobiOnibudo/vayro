@@ -61,8 +61,8 @@ export default function BuyScreen() {
         listingData = listingData.filter((listing) => {
             return listing.seller?.uid !== user.uid
         })
-        console.log(listingData)
-        console.log(listingData)
+        // console.log(listingData)
+      
         listingData = [...listingData, ...demoListings]
         return listingData
       }}}
