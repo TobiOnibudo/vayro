@@ -6,8 +6,6 @@ import { router } from "expo-router";
 
 export function ResponseLayout({ data }: { data: GeminiResponseData }) {
   const {
-    recommendedDescription,
-    suggestedPrice,
     setRecommendedDescription,
     setSuggestedPrice
   } = useStore();
@@ -16,12 +14,13 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
     setRecommendedDescription(data.recommendedDescription);
     setSuggestedPrice(data.suggestedPrice);
 
-    // TODO: Fix this
-    router.back();
+    router.push({
+      pathname: "/(tabs)/(sell)/sell-wrapper",
+    });
   }
 
   return (
-    <View style={tw`gap-6`}>
+    <View style={tw`gap-6 mb-20`}>
       <View style={tw`bg-stone-100 rounded-xl p-6`}>
         <Text style={tw`text-lg font-semibold text-gray-900 mb-2`}>
           Suggested Price

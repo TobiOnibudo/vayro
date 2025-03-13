@@ -56,6 +56,7 @@ export function ItemArea({
               setData({ ...uploadData, description: text })
             }
             placeholderTextColor={tw.color('gray-500')}
+            multiline={true}
             onFocus={() => scrollToInput(100)}
           >
           </TextInput>

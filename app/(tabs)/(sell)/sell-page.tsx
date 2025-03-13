@@ -13,6 +13,7 @@ import { LocationArea } from './_components/location-area';
 import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
 import { useStore } from '@/global-store/useStore';
+
 type SellPageProps = {
   scrollToInput: (y: number) => void;
 }
@@ -61,8 +62,13 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     // Subscribe to store changes
     const unsubscribe = useStore.subscribe((state) => {
       const suggestedPrice = state.suggestedPrice;
+      const recommendedDescription = state.recommendedDescription;
       if (suggestedPrice) {
         setData(prev => ({ ...prev, price: suggestedPrice.toString() }));
+      }
+
+      if (recommendedDescription) {
+        setData(prev => ({ ...prev, description: recommendedDescription }));
       }
     });
 
