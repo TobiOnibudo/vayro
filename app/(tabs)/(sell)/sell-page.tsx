@@ -1,7 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Alert } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import tw from 'twrnc';
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { UserUpload } from '@/types/userSchema';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
@@ -13,6 +13,7 @@ import { LocationArea } from './_components/location-area';
 import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
 import { useStore } from '@/global-store/useStore';
+import { useLocalSearchParams } from 'expo-router';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -26,6 +27,8 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   const { user, loadUser } = useLoadUser(setIsLoading);
+
+  const { routeBackData } = useLocalSearchParams<{ routeBackData: string }>();
 
   const {
     facing,
@@ -56,24 +59,14 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     boughtInYear: 0,
   })
 
+  // Initialization
   useEffect(() => {
     loadUser();
 
-    // Subscribe to store changes
-    const unsubscribe = useStore.subscribe((state) => {
-      const suggestedPrice = state.suggestedPrice;
-      const recommendedDescription = state.recommendedDescription;
-      if (suggestedPrice) {
-        setData(prev => ({ ...prev, price: suggestedPrice.toString() }));
-      }
-
-      if (recommendedDescription) {
-        setData(prev => ({ ...prev, description: recommendedDescription }));
-      }
-    });
-
-    // Cleanup
-    return () => unsubscribe();
+    if (routeBackData) {
+      const data = JSON.parse(routeBackData);
+      setData(prev => ({ ...prev, description: data.recommendedDescription, price: data.suggestedPrice }));
+    }
   }, []);
 
   const selectPhoto = async () => {

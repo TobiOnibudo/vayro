@@ -1,21 +1,15 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
-import { useStore } from "@/global-store/useStore";
 import { router } from "expo-router";
 
 export function ResponseLayout({ data }: { data: GeminiResponseData }) {
-  const {
-    setRecommendedDescription,
-    setSuggestedPrice
-  } = useStore();
-
   function addToSellPage() {
-    setRecommendedDescription(data.recommendedDescription);
-    setSuggestedPrice(data.suggestedPrice);
-
     router.push({
       pathname: "/(tabs)/(sell)/sell-wrapper",
+      params: {
+        routeBackData: JSON.stringify(data)
+      }
     });
   }
 
@@ -127,8 +121,8 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
       </View>
 
 
-      <TouchableOpacity style={tw`bg-blue-500 rounded-xl p-4`} onPress={addToSellPage}>
-        <Text style={tw`text-white text-center`}>
+      <TouchableOpacity style={tw`bg-[#ACA592] rounded-xl p-4`} onPress={addToSellPage}>
+        <Text style={tw`text-white text-center text-lg`}>
           Add to Sell Page
         </Text>
       </TouchableOpacity>
