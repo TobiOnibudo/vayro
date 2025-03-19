@@ -35,7 +35,7 @@ export default function GeminiResponseScreen() {
         </View>
       ) : (
         data && (
-          <ResponseLayout data={data} />
+          <ResponseLayout data={data} formData={formData} />
         ))}
     </ScrollView>
   );

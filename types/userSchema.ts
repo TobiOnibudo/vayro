@@ -28,7 +28,7 @@ export interface LoggedInUser{
 
 export interface UserUpload {
   title: string;
-  price: string; //change later
+  price: number;
   address: string;
   city: string;
   postal: string;

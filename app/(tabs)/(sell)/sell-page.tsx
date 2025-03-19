@@ -13,6 +13,9 @@ import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
 import { useLocalSearchParams } from 'expo-router';
 import { useUploadData } from '@/hooks/useUploadData';
+import { RoutebackSourcePage } from '@/types/routing';
+import { UserUpload } from '@/types/userSchema';
+import { GeminiResponseData } from '@/api/geminiAPI';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -25,18 +28,30 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { 
+  const {
     uploadData,
     setUploadData,
     setImageUrl,
+    setTitle,
     setPrice,
     setDescription,
+    setCondition,
+    setCategory,
+    setBoughtInYear,
     resetUploadData
   } = useUploadData();
 
   const { user, loadUser } = useLoadUser(setIsLoading);
 
-  const { routeBackData } = useLocalSearchParams<{ routeBackData: string }>();
+  const {
+    routeBackData,
+    source,
+    formData
+  } = useLocalSearchParams<{
+    routeBackData: string,
+    source: RoutebackSourcePage,
+    formData: string
+  }>();
 
   const {
     facing,
@@ -55,11 +70,23 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   useEffect(() => {
     loadUser();
 
-    if (routeBackData) {
+    if (source === "assistant" && routeBackData) {
       const data = JSON.parse(routeBackData);
-      console.log(data)
-
+      setPrice(data.suggestedPrice);
     }
+
+    else if (source === "suggestion" && routeBackData && formData !== "") {
+      const data: GeminiResponseData = JSON.parse(routeBackData);
+      const parsedFormData: UserUpload = JSON.parse(formData);
+
+      setTitle(parsedFormData.title);
+      setPrice(data.suggestedPrice);
+      setDescription(data.recommendedDescription);
+      setCondition(parsedFormData.condition);
+      setCategory(parsedFormData.category);
+      setBoughtInYear(parsedFormData.boughtInYear);
+    }
+
   }, []);
 
   const selectPhoto = async () => {
@@ -176,7 +203,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               // Only allow numbers and one decimal point
               const regex = /^\d*\.?\d*$/;
               if (text === '' || regex.test(text)) {
-                setPrice(text)
+                setPrice(Number(text));
               }
             }}
             placeholderTextColor={tw.color('gray-500')}

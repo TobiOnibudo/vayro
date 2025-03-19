@@ -1,9 +1,10 @@
 import { UserUpload } from "@/types/userSchema";
 import { useState } from "react";
+import type { Condition, Category } from "@/types/priceSuggestionFormSchema";
 
 const defaultUploadData: UserUpload = {
   title: "",
-  price: "",
+  price: 0,
   description: "",
   imageUrl: "",
   address: "",
@@ -22,19 +23,52 @@ export function useUploadData() {
   const [uploadData, setUploadData] = useState<UserUpload>(defaultUploadData);
 
   const setTitle = (title: string) => {
-    setUploadData({ ...uploadData, title });
+    setUploadData(prevData => ({
+      ...prevData,
+      title
+    }));
   };
 
-  const setPrice = (price: string) => {
-    setUploadData({ ...uploadData, price });
+  const setPrice = (price: number) => {
+    setUploadData(prevData => ({
+      ...prevData,
+      price
+    }));
   };
 
   const setDescription = (description: string) => {
-    setUploadData({ ...uploadData, description });
+    setUploadData(prevData => ({
+      ...prevData,
+      description
+    }));
+  };
+
+  const setCondition = (condition: Condition) => {
+    setUploadData(prevData => ({
+      ...prevData,
+      condition
+    }));
+  };
+
+  const setCategory = (category: Category) => {
+    setUploadData(prevData => ({
+      ...prevData,
+      category
+    }));
+  };
+
+  const setBoughtInYear = (boughtInYear: number) => {
+    setUploadData(prevData => ({
+      ...prevData,
+      boughtInYear
+    }));
   };
 
   const setImageUrl = (imageUrl: string) => {
-    setUploadData({ ...uploadData, imageUrl });
+    setUploadData(prevData => ({
+      ...prevData,
+      imageUrl
+    }));
   };
 
   const resetUploadData = () => {
@@ -47,6 +81,9 @@ export function useUploadData() {
     setTitle,
     setPrice,
     setDescription,
+    setCondition,
+    setCategory,
+    setBoughtInYear,
     setImageUrl,
     resetUploadData
   };

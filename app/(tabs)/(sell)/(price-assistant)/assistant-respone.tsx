@@ -2,9 +2,12 @@ import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
 import { useRouter } from "expo-router";
+import { RoutebackSourcePage } from "@/types/routing";
 
 export function AssistantResponse({ data }: { data: GeminiResponseData }) {
   const router = useRouter();
+
+  const routeBackSourcePage: RoutebackSourcePage = "assistant";
 
   function handleApplyPrice() {
     router.push({
@@ -12,7 +15,9 @@ export function AssistantResponse({ data }: { data: GeminiResponseData }) {
       params: {
         routeBackData: JSON.stringify({
           suggestedPrice: data.suggestedPrice,
-        })
+        }),
+        source: routeBackSourcePage,
+        formData: "",
       }
     });
   }

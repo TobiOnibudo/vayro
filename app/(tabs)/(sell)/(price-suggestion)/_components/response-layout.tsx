@@ -2,14 +2,20 @@ import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
 import { router } from "expo-router";
+import { RoutebackSourcePage } from "@/types/routing";
+import { UserUpload } from "@/types/userSchema";
 
-export function ResponseLayout({ data }: { data: GeminiResponseData }) {
+export function ResponseLayout({ data, formData }: { data: GeminiResponseData, formData: UserUpload }) {
+  const routeBackSourcePage: RoutebackSourcePage = "suggestion";
+
   function addToSellPage() {
     router.push({
       pathname: "/(tabs)/(sell)/sell-wrapper",
       params: {
-        routeBackData: JSON.stringify(data)
-      }
+        routeBackData: JSON.stringify(data),
+        source: routeBackSourcePage,
+        formData: JSON.stringify(formData),
+      },
     });
   }
 
