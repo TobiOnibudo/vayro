@@ -8,9 +8,11 @@ export function AssistantResponse({ data }: { data: GeminiResponseData }) {
 
   function handleApplyPrice() {
     router.push({
-      pathname: "../",
+      pathname: "/(tabs)/(sell)/sell-wrapper",
       params: {
-        routeBackData: JSON.stringify(data)
+        routeBackData: JSON.stringify({
+          suggestedPrice: data.suggestedPrice,
+        })
       }
     });
   }
