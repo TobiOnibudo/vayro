@@ -13,9 +13,9 @@ import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
 import { useLocalSearchParams } from 'expo-router';
 import { useUploadData } from '@/hooks/useUploadData';
-import { RoutebackSourcePage } from '@/types/routing';
 import { UserUpload } from '@/types/userSchema';
 import { GeminiResponseData } from '@/api/geminiAPI';
+import { RoutebackSourcePage } from '@/types/routingSchema';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -45,12 +45,12 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
   const {
     routeBackData,
-    source,
-    formData
+    formData,
+    source
   } = useLocalSearchParams<{
     routeBackData: string,
-    source: RoutebackSourcePage,
-    formData: string
+    formData: string,
+    source: RoutebackSourcePage
   }>();
 
   const {
@@ -70,23 +70,23 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   useEffect(() => {
     loadUser();
 
-    if (source === "assistant" && routeBackData) {
-      const data = JSON.parse(routeBackData);
-      setPrice(data.suggestedPrice);
-    }
-
-    else if (source === "suggestion" && routeBackData && formData !== "") {
+    if (routeBackData && formData) {
       const data: GeminiResponseData = JSON.parse(routeBackData);
       const parsedFormData: UserUpload = JSON.parse(formData);
 
       setTitle(parsedFormData.title);
       setPrice(data.suggestedPrice);
-      setDescription(data.recommendedDescription);
       setCondition(parsedFormData.condition);
       setCategory(parsedFormData.category);
       setBoughtInYear(parsedFormData.boughtInYear);
-    }
 
+      if (source === "assistant") {
+        setDescription(parsedFormData.description);
+      }
+      else if (source === "suggestion") {
+        setDescription(data.recommendedDescription);
+      }
+    }
   }, []);
 
   const selectPhoto = async () => {

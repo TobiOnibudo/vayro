@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
 import { router } from "expo-router";
-import { RoutebackSourcePage } from "@/types/routing";
+import { RoutebackSourcePage } from "@/types/routingSchema";
 import { UserUpload } from "@/types/userSchema";
 
 export function ResponseLayout({ data, formData }: { data: GeminiResponseData, formData: UserUpload }) {

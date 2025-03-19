@@ -2,9 +2,10 @@ import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
 import { useRouter } from "expo-router";
-import { RoutebackSourcePage } from "@/types/routing";
+import { RoutebackSourcePage } from "@/types/routingSchema";
+import { UserUpload } from "@/types/userSchema";
 
-export function AssistantResponse({ data }: { data: GeminiResponseData }) {
+export function AssistantResponse({ data, formData }: { data: GeminiResponseData, formData: UserUpload }) {
   const router = useRouter();
 
   const routeBackSourcePage: RoutebackSourcePage = "assistant";
@@ -17,7 +18,7 @@ export function AssistantResponse({ data }: { data: GeminiResponseData }) {
           suggestedPrice: data.suggestedPrice,
         }),
         source: routeBackSourcePage,
-        formData: "",
+        formData: JSON.stringify(formData),
       }
     });
   }
