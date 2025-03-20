@@ -12,8 +12,8 @@ import { LocationArea } from './_components/location-area';
 import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
 import { useLocalSearchParams } from 'expo-router';
-import { useUploadData } from '@/hooks/useUploadData';
-import { UserUpload } from '@/types/userSchema';
+import { useUploadStore } from '@/store/uploadStore';
+import type { UserUpload } from '@/types/userSchema';
 import { GeminiResponseData } from '@/api/geminiAPI';
 import { RoutebackSourcePage } from '@/types/routingSchema';
 
@@ -39,7 +39,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     setCategory,
     setBoughtInYear,
     resetUploadData
-  } = useUploadData();
+  } = useUploadStore();
 
   const { user, loadUser } = useLoadUser(setIsLoading);
 
@@ -100,8 +100,10 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   }
 
   const handleUpload = async () => {
-    await uploadListing(uploadData, setUploadData, setError, setIsLoading);
-    resetUploadData();
+    const success = await uploadListing(uploadData, setUploadData, setError, setIsLoading);
+    if (success) {
+      resetUploadData();
+    }
   }
 
   const handlePriceSuggestion = async () => {
@@ -132,21 +134,28 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     );
   }
   return (
-    <ScrollView style={tw`flex-1 bg-gray-100 px-7 mb-20`}>
+    <ScrollView style={tw`flex-1 bg-gray-100 px-7 mb-25`}>
       <SafeAreaView>
         <SellHeader />
 
         {/* Expo Camera */}
-        <View style={tw`flex-row justify-end`}>
+        <View style={tw`flex-row justify-between`}>
+          <TouchableOpacity
+            onPress={() => resetUploadData()}
+            style={tw`p-2 w-10 rounded-full`}>
+            <Ionicons name="trash-outline" size={25} color="red" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => setShowCamera(!showCamera)}
-            style={tw`p-2 w-10 bg-[#ACA592] rounded-full mr-4`}>
+            style={tw`p-2 w-10 bg-[#ACA592] rounded-full`}>
             <Ionicons name="camera" size={25} color="white" />
           </TouchableOpacity>
         </View>
 
         {/* Product */}
         <Text style={tw`text-gray-700 text-3xl font-bold mb-3 ml-1`}>Product</Text>
+
         <ItemArea
           uploadData={uploadData}
           setData={setUploadData}
@@ -208,7 +217,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             }}
             placeholderTextColor={tw.color('gray-500')}
             keyboardType="decimal-pad"
-            onFocus={() => scrollToInput(1000)}>
+            onFocus={() => scrollToInput(1100)}>
           </TextInput>
           {/* Ask AI for price suggestion */}
           <View>
