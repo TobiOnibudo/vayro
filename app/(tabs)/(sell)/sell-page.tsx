@@ -2,7 +2,6 @@ import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, S
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
-import { UserUpload } from '@/types/userSchema';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
@@ -12,7 +11,12 @@ import { uploadListing } from './functions';
 import { LocationArea } from './_components/location-area';
 import { ItemArea } from './_components/item-area';
 import { SellHeader } from './_components/sell-header';
-import { useStore } from '@/global-store/useStore';
+import { useLocalSearchParams } from 'expo-router';
+import { useUploadStore } from '@/store/uploadStore';
+import type { UserUpload } from '@/types/userSchema';
+import { GeminiResponseData } from '@/api/geminiAPI';
+import { RoutebackSourcePage } from '@/types/routingSchema';
+
 type SellPageProps = {
   scrollToInput: (y: number) => void;
 }
@@ -24,7 +28,30 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const {
+    uploadData,
+    setUploadData,
+    setImageUrl,
+    setTitle,
+    setPrice,
+    setDescription,
+    setCondition,
+    setCategory,
+    setBoughtInYear,
+    resetUploadData
+  } = useUploadStore();
+
   const { user, loadUser } = useLoadUser(setIsLoading);
+
+  const {
+    routeBackData,
+    formData,
+    source
+  } = useLocalSearchParams<{
+    routeBackData: string,
+    formData: string,
+    source: RoutebackSourcePage
+  }>();
 
   const {
     facing,
@@ -39,41 +66,33 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     setPhoto
   } = useCamera();
 
-  const [uploadData, setData] = useState<UserUpload>({
-    title: '',
-    price: '',
-    address: '',
-    city: '',
-    postal: '',
-    description: '',
-    imageUrl: '',
-    latitude: 44.6488, // Halifax Latitude
-    longitude: -63.5752, // Halifax Longitude
-    type: '',
-    condition: 'Used',
-    category: 'Furniture',
-    boughtInYear: 0,
-  })
-
+  // Initialization
   useEffect(() => {
     loadUser();
 
-    // Subscribe to store changes
-    const unsubscribe = useStore.subscribe((state) => {
-      const suggestedPrice = state.suggestedPrice;
-      if (suggestedPrice) {
-        setData(prev => ({ ...prev, price: suggestedPrice.toString() }));
-      }
-    });
+    if (routeBackData && formData) {
+      const data: GeminiResponseData = JSON.parse(routeBackData);
+      const parsedFormData: UserUpload = JSON.parse(formData);
 
-    // Cleanup
-    return () => unsubscribe();
+      setTitle(parsedFormData.title);
+      setPrice(data.suggestedPrice);
+      setCondition(parsedFormData.condition);
+      setCategory(parsedFormData.category);
+      setBoughtInYear(parsedFormData.boughtInYear);
+
+      if (source === "assistant") {
+        setDescription(parsedFormData.description);
+      }
+      else if (source === "suggestion") {
+        setDescription(data.recommendedDescription);
+      }
+    }
   }, []);
 
   const selectPhoto = async () => {
     if (photo) {
       const imageUrl = await uploadImageToCloud(photo) ?? ""
-      setData({ ...uploadData, imageUrl: imageUrl })
+      setImageUrl(imageUrl)
     }
     // Set Camera off and set photo to null
     setShowCamera(false);
@@ -81,7 +100,10 @@ export function SellPage({ scrollToInput }: SellPageProps) {
   }
 
   const handleUpload = async () => {
-    await uploadListing(uploadData, setData, setError, setIsLoading);
+    const success = await uploadListing(uploadData, setUploadData, setError, setIsLoading);
+    if (success) {
+      resetUploadData();
+    }
   }
 
   const handlePriceSuggestion = async () => {
@@ -112,24 +134,31 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     );
   }
   return (
-    <ScrollView style={tw`flex-1 bg-gray-100 px-7 mb-20`}>
+    <ScrollView style={tw`flex-1 bg-gray-100 px-7 mb-25`}>
       <SafeAreaView>
         <SellHeader />
 
         {/* Expo Camera */}
-        <View style={tw`flex-row justify-end`}>
+        <View style={tw`flex-row justify-between`}>
+          <TouchableOpacity
+            onPress={() => resetUploadData()}
+            style={tw`p-2 w-10 rounded-full`}>
+            <Ionicons name="trash-outline" size={25} color="red" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => setShowCamera(!showCamera)}
-            style={tw`p-2 w-10 bg-[#ACA592] rounded-full mr-4`}>
+            style={tw`p-2 w-10 bg-[#ACA592] rounded-full`}>
             <Ionicons name="camera" size={25} color="white" />
           </TouchableOpacity>
         </View>
 
         {/* Product */}
         <Text style={tw`text-gray-700 text-3xl font-bold mb-3 ml-1`}>Product</Text>
+
         <ItemArea
           uploadData={uploadData}
-          setData={setData}
+          setData={setUploadData}
           setError={setError}
           setIsLoading={setIsLoading}
           scrollToInput={scrollToInput}
@@ -139,7 +168,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
         <Text style={tw`text-gray-700 text-3xl font-bold mb-3 ml-1`}>Location</Text>
         <LocationArea
           uploadData={uploadData}
-          setData={setData}
+          setData={setUploadData}
           setIsLoading={setIsLoading}
           isLoading={isLoading}
           scrollToInput={scrollToInput}
@@ -159,7 +188,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
             </View>
             <TouchableOpacity
               style={tw`mt-2 p-2 bg-red-500 rounded-full`}
-              onPress={() => setData({ ...uploadData, imageUrl: '' })}>
+              onPress={() => setUploadData({ ...uploadData, imageUrl: '' })}>
               <Ionicons name="trash-outline" size={20} color="white" />
             </TouchableOpacity>
           </View>
@@ -183,12 +212,12 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               // Only allow numbers and one decimal point
               const regex = /^\d*\.?\d*$/;
               if (text === '' || regex.test(text)) {
-                setData(prev => ({ ...prev, price: text }))
+                setPrice(Number(text));
               }
             }}
             placeholderTextColor={tw.color('gray-500')}
             keyboardType="decimal-pad"
-            onFocus={() => scrollToInput(1000)}>
+            onFocus={() => scrollToInput(1100)}>
           </TextInput>
           {/* Ask AI for price suggestion */}
           <View>

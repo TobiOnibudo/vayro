@@ -44,7 +44,7 @@ export default function PriceAssistant() {
         </View>
       ) : (
         data && (
-          <AssistantResponse data={data} />
+          <AssistantResponse data={data} formData={userUploadData} />
         ))}
     </ScrollView>
   );

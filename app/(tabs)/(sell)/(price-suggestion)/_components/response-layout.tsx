@@ -1,10 +1,26 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
+import { router } from "expo-router";
+import { RoutebackSourcePage } from "@/types/routingSchema";
+import { UserUpload } from "@/types/userSchema";
 
-export function ResponseLayout({ data }: { data: GeminiResponseData }) {
+export function ResponseLayout({ data, formData }: { data: GeminiResponseData, formData: UserUpload }) {
+  const routeBackSourcePage: RoutebackSourcePage = "suggestion";
+
+  function addToSellPage() {
+    router.push({
+      pathname: "/(tabs)/(sell)/sell-wrapper",
+      params: {
+        routeBackData: JSON.stringify(data),
+        source: routeBackSourcePage,
+        formData: JSON.stringify(formData),
+      },
+    });
+  }
+
   return (
-    <View style={tw`gap-6`}>
+    <View style={tw`gap-6 mb-20`}>
       <View style={tw`bg-stone-100 rounded-xl p-6`}>
         <Text style={tw`text-lg font-semibold text-gray-900 mb-2`}>
           Suggested Price
@@ -109,6 +125,14 @@ export function ResponseLayout({ data }: { data: GeminiResponseData }) {
           </Text>
         )}
       </View>
+
+
+      <TouchableOpacity style={tw`bg-[#ACA592] rounded-xl p-4`} onPress={addToSellPage}>
+        <Text style={tw`text-white text-center text-lg`}>
+          Add to Sell Page
+        </Text>
+      </TouchableOpacity>
+
 
       <View style={tw`bg-yellow-50 rounded-xl p-6`}>
         <Text style={tw`text-sm text-gray-600 italic text-center`}>

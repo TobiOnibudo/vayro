@@ -56,6 +56,7 @@ export function ItemArea({
               setData({ ...uploadData, description: text })
             }
             placeholderTextColor={tw.color('gray-500')}
+            multiline={true}
             onFocus={() => scrollToInput(100)}
           >
           </TextInput>
@@ -65,14 +66,14 @@ export function ItemArea({
           <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Year Bought</Text>
           <TextInput
             style={tw`w-full p-3 shadow-md rounded-lg bg-white`}
-            onChangeText={(text) => {
-              const numericValue = text.replace(/[^0-9]/g, '');
-              setData({ ...uploadData, boughtInYear: numericValue ? parseInt(numericValue) : 0 });
+            onChangeText={(numericValue) => {
+              setData({ ...uploadData, boughtInYear: Number(numericValue) });
             }}
             placeholder="Year bought"
             keyboardType="number-pad"
             maxLength={4}
             onFocus={() => scrollToInput(400)}
+            value={uploadData.boughtInYear ? String(uploadData.boughtInYear) : ''}
           />
         </View>
 

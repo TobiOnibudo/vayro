@@ -2,23 +2,25 @@ import { View, Text, TouchableOpacity } from "react-native";
 import tw from "twrnc";
 import { GeminiResponseData } from "@/api/geminiAPI";
 import { useRouter } from "expo-router";
-import { useStore } from "@/global-store/useStore";
+import { RoutebackSourcePage } from "@/types/routingSchema";
+import { UserUpload } from "@/types/userSchema";
 
-export function AssistantResponse({ data }: { data: GeminiResponseData }) {
-  const price = data.suggestedPrice;
+export function AssistantResponse({ data, formData }: { data: GeminiResponseData, formData: UserUpload }) {
   const router = useRouter();
-  const setPriceData = useStore(state => state.setPriceData);
+
+  const routeBackSourcePage: RoutebackSourcePage = "assistant";
 
   function handleApplyPrice() {
-    // Store the price data in the global store
-    setPriceData({
-      suggestedPrice: data.suggestedPrice,
-      priceRange: data.priceRange,
-      confidence: data.confidence,
-      reason: data.reason
+    router.push({
+      pathname: "/(tabs)/(sell)/sell-wrapper",
+      params: {
+        routeBackData: JSON.stringify({
+          suggestedPrice: data.suggestedPrice,
+        }),
+        source: routeBackSourcePage,
+        formData: JSON.stringify(formData),
+      }
     });
-    
-    router.push("../");
   }
 
   return (

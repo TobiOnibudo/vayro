@@ -52,7 +52,7 @@ export async function uploadListing(
   setData: (data: UserUpload) => void,
   setError: (error: string) => void,
   setIsLoading: (isLoading: boolean) => void
-) {
+): Promise<boolean> {
   const userData = await AsyncStorage.getItem("userData") ?? "";
   const user = JSON.parse(userData)
   console.log(uploadData);
@@ -74,7 +74,7 @@ export async function uploadListing(
         longitude: coords.longitude
       });
 
-      console.log("url: " + uploadData.imageUrl)
+      console.log("url: " + uploadData.imageUrl);
       
       try {
       const listingDetails = {
@@ -97,21 +97,25 @@ export async function uploadListing(
           longitude: uploadData.longitude,
         },
         type: uploadData.type,
-      }
+      };
 
-      console.log(`listingDetails : ${listingDetails}`)
+      console.log(`listingDetails : ${listingDetails}`);
       // Save upload to database
       await set(ref(database, '/listings/' + listingDetails.lid), listingDetails);
 
-      router.push(`../../listings/${listingDetails.lid}`)    
+      router.push(`../../listings/${listingDetails.lid}`) ;
+      return true;
     }
     catch (error: any) {
       console.error("Uploading error:", error.message); 
       setError("Uploading error: " + error.message);
     }
     setIsLoading(false);
+    return false;
   }
+  
   else {
     Alert.alert("Please fill out all fields");
+    return false;
   }
 }
