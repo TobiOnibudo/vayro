@@ -73,14 +73,9 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
-      <View style={tw`w-9/10 m-auto flex-row items-center bg-white rounded-lg px-3 shadow-sm border border-gray-200 mb-4`}>
-        <Ionicons name="search" size={20} color="#666" />
-        <TextInput
-          style={tw`flex-1 py-2 px-2`}
-          placeholder="Search..."
-          placeholderTextColor="#999"
-        />
+      {/* Page */}
+      <View>
+      <Text style={tw`text-xl font-bold text-gray-800 mb-2 ml-2`}> Most Recent </Text>
       </View>
 
       {/* Feed Content */}

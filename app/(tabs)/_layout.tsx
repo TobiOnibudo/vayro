@@ -50,9 +50,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="sellHistory"
+        name="History"
         options={{
-          title: 'SellHistory',
+          title: 'History',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="scroll" color={color} />,
         }}
       />
