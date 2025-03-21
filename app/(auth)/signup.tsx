@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -27,6 +27,29 @@ export default function SignUp() {
   const [error, setError] = useState<string | null>(null); // State for error messages
   const [fieldError, setFieldError] = useState<{ [key: string]: string | null }>({}); // State for field-specific error messages
 
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  const [passwordConditions, setPasswordConitions] = useState({
+    length: false,
+    capital: false,
+    lowercase: false,
+    digit: false,
+    specialChar:false,
+  });
+
+  const validatePasswordConditions = (password: string) => {
+    const conditions = {
+      length: password.length >= 6,
+      capital: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      digit: /\d/.test(password),
+      specialChar: /[^A-Za-z0-9]/.test(password),
+    };
+  
+    setPasswordConitions(conditions); // Update state
+    return conditions; // Return the conditions
+  };
+
   const handleSignUp = async () => {
     // Validate email, password, and other fields
     if (!userData.email || !userData.password || !userData.firstName || !userData.lastName) {
@@ -40,8 +63,14 @@ export default function SignUp() {
       return;
     }
 
-    if (userData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (
+      !passwordConditions.length || 
+      !passwordConditions.capital || 
+      !passwordConditions.lowercase || 
+      !passwordConditions.digit || 
+      !passwordConditions.specialChar
+    ) {
+      setError("Password must meet all requirements.");
       return;
     }
 
@@ -94,11 +123,16 @@ export default function SignUp() {
         setFieldError(prev => ({ ...prev, email: null })); // Clear error if valid
       }
     } else if (field === 'Password') {
-      if (userData.password.length < 6) {
-        setFieldError(prev => ({ ...prev, password: "Password must be at least 6 characters long." }));
-      } else {
-        setFieldError(prev => ({ ...prev, password: null })); // Clear error if valid
-      }
+      const passConditions = validatePasswordConditions(userData.password);
+      if(!passConditions.length || 
+        !passConditions.capital || 
+        !passConditions.lowercase || 
+        !passConditions.digit || 
+        !passConditions.specialChar) {
+          setFieldError(prev => ({ ...prev, password: "Password requirements not met."}));
+        }else {
+          setFieldError(prev => ({ ...prev, password: ""}));
+        }
     } else if (field === 'Phone') {
       const phonePattern = /^[0-9]{10}$/; // Example pattern for 10-digit phone numbers
       if (!phonePattern.test(userData.phone)) {
@@ -124,8 +158,6 @@ export default function SignUp() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={tw`flex-1 bg-gray-100 px-7`}>
             <SafeAreaView>
-              {/* Error Message */}
-              {error && <Text style={tw`text-red-500 text-center mb-4`}>{error}</Text>}
 
               {/* Back Button */}
               <View style={tw`flex-row items-center mt-1`}>
@@ -164,21 +196,82 @@ export default function SignUp() {
                       style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
                       placeholder={field}
                       value={userData[field.toLowerCase() as keyof SignUpUser]}
-                      onChangeText={(text) =>
-                        setUserData(prev => ({ ...prev, [field.toLowerCase()]: text }))
-                      }
+                      onChangeText={(text) => {
+                        text = text.trim();
+                        setUserData(prev => ({ ...prev, [field.toLowerCase()]: text }));
+                        if (field === 'Password') {
+                          validatePasswordConditions(text);
+                        }
+                      }}
                       secureTextEntry={field === 'Password'}
                       placeholderTextColor={tw.color('gray-500')}
                       keyboardType={field === 'Email' ? 'email-address' : (field === 'Phone' ? 'phone-pad' : 'default')}
-                      onBlur={() => validateField(field)}
+                      onBlur={() => {
+                        validateField(field);
+                        setPasswordFocused(false);
+                      }}
+                      onFocus={() => {if(field === 'Password') {setPasswordFocused(true)};}}  
+                      
                     />
                     {/* Field-Specific Error Message */}
                     {fieldError[field.toLowerCase()] && (
-                      <Text style={tw`text-red-500 text-sm mt-1`}>{fieldError[field.toLowerCase()]}</Text>
+                      <Text style={tw`text-red-500 text-sm mt-1 pl-1`}>{fieldError[field.toLowerCase()]}</Text>
                     )}
+
+                    {/*Password Error Messages */}
+                    {passwordFocused && field === 'Password' && (
+                      <View style={tw`mt-2 mb--6`}>
+                      <Text style={tw`text-gray-600 text-sm`}>Password must:</Text>
+                      <Text style={tw`text-gray-600 text-sm`}>
+                        {passwordConditions.length ? (
+                          <Text style={tw`text-green-500 text-2xl`}>• </Text>
+                        ) : (
+                          <Text style={tw`text-2xl`}>• </Text>
+                        )}
+                        Be at least 6 characters long
+                      </Text>
+                      <Text style={tw`text-gray-600 text-sm`}>
+                        {passwordConditions.capital ? (
+                          <Text style={tw`text-green-500 text-2xl`}>• </Text>
+                        ) : (
+                          <Text style={tw`text-2xl`}>• </Text>
+                        )}
+                        Contain at least one uppercase letter
+                      </Text>
+                      <Text style={tw`text-gray-600 text-sm`}>
+                        {passwordConditions.lowercase ? (
+                          <Text style={tw`text-green-500 text-2xl`}>• </Text>
+                        ) : (
+                          <Text style={tw`text-2xl`}>• </Text>
+                        )}
+                        Contain at least one lowercase letter
+                      </Text>
+                      <Text style={tw`text-gray-600 text-sm`}>
+                        {passwordConditions.digit ? (
+                          <Text style={tw`text-green-500 text-2xl`}>• </Text>
+                        ) : (
+                          <Text style={tw`text-2xl`}>• </Text>
+                        )}
+                        Contain at least one number
+                      </Text>
+                      <Text style={tw`text-gray-600 text-sm`}>
+                        {passwordConditions.specialChar ? (
+                          <Text style={tw`text-green-500 text-2xl`}>• </Text>
+                        ) : (
+                          <Text style={tw`text-2xl`}>• </Text>
+                        )}
+                        Contain at least one special character
+                      </Text>
+                    </View>
+                    )}
+
                   </View>
                 ))}
               </View>
+              
+              {/* Error Message */}
+              {error && <Text style={tw`text-red-500 text-center mt--4 mb-2`}>{error}</Text>}
+
               {/* Register Button */}
               <View style={tw`items-center mb-15`}>
                 <TouchableOpacity
@@ -188,6 +281,7 @@ export default function SignUp() {
                   <Text style={tw`text-white text-center text-4.6`}>Register</Text>
                 </TouchableOpacity>
               </View>
+              
             </SafeAreaView>
           </View>
         </TouchableWithoutFeedback>
