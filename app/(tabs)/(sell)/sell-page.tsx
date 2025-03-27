@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
@@ -16,6 +16,7 @@ import { useUploadStore } from '@/store/uploadStore';
 import type { UserUpload } from '@/types/userSchema';
 import { GeminiResponseData } from '@/api/geminiAPI';
 import { RoutebackSourcePage } from '@/types/routingSchema';
+import { visionCompletion } from '@/api/openaiAPI';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -26,6 +27,7 @@ type SellPageProps = {
 export function SellPage({ scrollToInput }: SellPageProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isVisionLoading, setIsVisionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -106,8 +108,16 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     }
   }
 
-  const handleAIFill = async () => {
-    console.log("AIFill");
+  const handleVisionCompletion = async () => {
+    try {
+      setIsVisionLoading(true);
+      const visionResponse = await visionCompletion(uploadData.imageUrl);
+      console.log("visionResponse: ", visionResponse);
+    } catch (error) {
+      console.error("Error in handleVisionCompletion:", error);
+    } finally {
+      setIsVisionLoading(false);
+    }
   }
 
   const handlePriceSuggestion = async () => {
@@ -202,7 +212,12 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               />
             </View>
 
-            <View style={tw`flex-row justify-between mt-4 w-full px-15`}>
+            {isVisionLoading ? (
+              <View style={tw`flex-row justify-center items-center mt-4 w-full px-15`}>
+                <ActivityIndicator size="small" color="black" />
+              </View>
+            ) : (
+              <View style={tw`flex-row justify-between mt-4 w-full px-15`}>
               <TouchableOpacity
                 style={tw`mt-2 p-2 bg-red-500 rounded-full`}
                 onPress={() => setUploadData({ ...uploadData, imageUrl: '' })}>
@@ -210,10 +225,12 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={tw`mt-2 p-2 bg-blue-500 rounded-full`}
-                onPress={() => handleAIFill()}>
-                <FontAwesome name="magic" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
+                onPress={() => handleVisionCompletion()}>
+                  <FontAwesome name="magic" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+            )}
+
           </View>
         ) : (
           <View style={tw`mb-7 items-center`}>
@@ -292,7 +309,7 @@ export function SellPage({ scrollToInput }: SellPageProps) {
 
         {/* Photo Preview and Selection*/}
         {photo && (
-          <View style={tw`absolute top-8% bottom-10% left-0 right-0 justify-start items-center z-10 bg-white bg-opacity-95 h-50% p-2`}>
+          <View style={tw`absolute top-8% bottom-10% left-0 right-0 justify-start items-center z-10 bg-white bg-opacity-95 h-35% p-2`}>
             <Image source={{ uri: photo }} style={tw`w-90% h-80% rounded-lg`} />
             <View style={tw`flex-row justify-center mt-4 w-full`}>
               <TouchableOpacity
