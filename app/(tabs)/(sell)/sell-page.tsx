@@ -2,7 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, S
 import { useState, useEffect } from 'react';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
-import { Ionicons, Feather } from '@expo/vector-icons';
+import { Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
 import { CameraView } from 'expo-camera';
 import { uploadImageToCloud } from '@/api/imageUploadAPI';
 import { useLoadUser } from '@/hooks/useLoadUser';
@@ -106,6 +106,10 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     }
   }
 
+  const handleAIFill = async () => {
+    console.log("AIFill");
+  }
+
   const handlePriceSuggestion = async () => {
     if (uploadData.boughtInYear && uploadData.condition && uploadData.category && uploadData.description && uploadData.title) {
       await router.push({
@@ -138,8 +142,19 @@ export function SellPage({ scrollToInput }: SellPageProps) {
       <SafeAreaView>
         <SellHeader />
 
+        {/* Info Block for AI-assisted upload */}
+        <View style={tw`mb-2 px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200`}>
+          <View style={tw`flex-row items-center mb-2`}>
+            <Ionicons name="information-circle-outline" size={24} color="#ACA592" />
+            <Text style={tw`ml-2 text-lg font-semibold text-gray-700`}>Express Upload</Text>
+          </View>
+          <Text style={tw`text-gray-600 mb-3`}>
+            Take a photo of your item and let AI help fill out the product details for you.
+          </Text>
+        </View>
+
         {/* Expo Camera */}
-        <View style={tw`flex-row justify-between`}>
+        <View style={tw`mb-2 flex-row justify-between`}>
           <TouchableOpacity
             onPress={() => resetUploadData()}
             style={tw`p-2 w-10 rounded-full`}>
@@ -186,11 +201,19 @@ export function SellPage({ scrollToInput }: SellPageProps) {
                 resizeMode="cover"
               />
             </View>
-            <TouchableOpacity
-              style={tw`mt-2 p-2 bg-red-500 rounded-full`}
-              onPress={() => setUploadData({ ...uploadData, imageUrl: '' })}>
-              <Ionicons name="trash-outline" size={20} color="white" />
-            </TouchableOpacity>
+
+            <View style={tw`flex-row justify-between mt-4 w-full px-15`}>
+              <TouchableOpacity
+                style={tw`mt-2 p-2 bg-red-500 rounded-full`}
+                onPress={() => setUploadData({ ...uploadData, imageUrl: '' })}>
+                <Ionicons name="trash-outline" size={20} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={tw`mt-2 p-2 bg-blue-500 rounded-full`}
+                onPress={() => handleAIFill()}>
+                <FontAwesome name="magic" size={20} color="white" />
+              </TouchableOpacity>
+            </View>
           </View>
         ) : (
           <View style={tw`mb-7 items-center`}>
