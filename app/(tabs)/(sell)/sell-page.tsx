@@ -17,6 +17,7 @@ import type { UserUpload } from '@/types/userSchema';
 import { GeminiResponseData } from '@/api/geminiAPI';
 import { RoutebackSourcePage } from '@/types/routingSchema';
 import { visionCompletion } from '@/api/openaiAPI';
+import { Category, Condition } from '@/types/priceSuggestionFormSchema';
 
 type SellPageProps = {
   scrollToInput: (y: number) => void;
@@ -112,7 +113,16 @@ export function SellPage({ scrollToInput }: SellPageProps) {
     try {
       setIsVisionLoading(true);
       const visionResponse = await visionCompletion(uploadData.imageUrl);
-      console.log("visionResponse: ", visionResponse);
+      
+      // Fill in the form with the vision response
+      if (visionResponse) {
+        setTitle(visionResponse.title);
+        setDescription(visionResponse.description);
+        setCondition(visionResponse.condition as Condition);
+        setCategory(visionResponse.category as Category);
+        setPrice(visionResponse.price);
+      }
+
     } catch (error) {
       console.error("Error in handleVisionCompletion:", error);
     } finally {
@@ -221,12 +231,12 @@ export function SellPage({ scrollToInput }: SellPageProps) {
               <TouchableOpacity
                 style={tw`mt-2 p-2 bg-red-500 rounded-full`}
                 onPress={() => setUploadData({ ...uploadData, imageUrl: '' })}>
-                <Ionicons name="trash-outline" size={20} color="white" />
+                <Ionicons name="trash-outline" size={26} color="white" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={tw`mt-2 p-2 bg-blue-500 rounded-full`}
                 onPress={() => handleVisionCompletion()}>
-                  <FontAwesome name="magic" size={20} color="white" />
+                  <FontAwesome name="magic" size={26} color="white" />
                 </TouchableOpacity>
               </View>
             )}

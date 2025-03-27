@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { CONDITIONS_VALUES, CATEGORIES_VALUES } from '@/types/priceSuggestionFormSchema';
 
 const OPENAI_API_KEY = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
 if (!OPENAI_API_KEY) {
@@ -21,21 +22,29 @@ const prompt = `
   Based on your analysis, provide a JSON object with the following fields:
   - title
   - description
-  - condition
-  - category
+  - condition (enum: ${Object.values(CONDITIONS_VALUES).join(', ')})
+  - category (enum: ${Object.values(CATEGORIES_VALUES).join(', ')})
   - price
 
   # Example
   {
     "title": "Vintage Leather Sofa",
     "description": "A comfortable leather sofa in good condition",
-    "condition": "Good",
-    "category": "Sofa",
+    "condition": "New",
+    "category": "Furniture",
     "price": 1000
   }
 `;
 
-export async function visionCompletion(imageUrl: string): Promise<string | null> {
+export type VisionCompletionOutput = {
+  title: string;
+  description: string;
+  condition: string;
+  category: string;
+  price: number;
+}
+
+export async function visionCompletion(imageUrl: string): Promise<VisionCompletionOutput | null> {
   if (!imageUrl) {
     console.log("No image URL provided");
     return null;
@@ -73,10 +82,12 @@ export async function visionCompletion(imageUrl: string): Promise<string | null>
                 type: "string"
               },
               condition: {
-                type: "string"
+                type: "string",
+                enum: Object.values(CONDITIONS_VALUES)
               },
               category: {
-                type: "string"
+                type: "string",
+                enum: Object.values(CATEGORIES_VALUES)
               },
               price: {
                 type: "number"
@@ -100,8 +111,16 @@ export async function visionCompletion(imageUrl: string): Promise<string | null>
       throw new Error("Incomplete response");
     }
 
-    // Return the output text
-    return response.output_text;
+    // Return the output JSON with error handling
+    const outputText =response.output_text;
+    try {
+      const outputJson = JSON.parse(outputText);
+      return outputJson;
+
+    } catch (error) {
+      console.error("Error in visionCompletion:", error);
+      return null;
+    }
     
   } catch (error) {
     console.error("Error in visionCompletion:", error);
