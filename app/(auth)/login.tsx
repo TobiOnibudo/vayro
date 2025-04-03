@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import tw from 'twrnc';
 import { useRouter } from "expo-router";
 import { LoginUser } from '@/types/userSchema';
@@ -76,23 +77,83 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <View style={tw`flex-1 bg-gray-100 px-7`}>
-      <SafeAreaView>
-        {/* Logo and Brand */}
-        <View style={tw`flex-row items-center justify-center mt-25`}>
-          <Image
-            source={require('@/assets/images/logo_and_name.png')}
-            style={tw`w-60 h-20`}
-            resizeMode="contain"
-          />
-        </View>
+  //Consts for animation
+  const welcomeOpacity = useSharedValue(0);
+const logoOpacity = useSharedValue(0);
+const logoTranslateY = useSharedValue(50);  // Start below center
+const formTranslateY = useSharedValue(50); // Start lower down
+const formOpacity = useSharedValue(0);
+const welcomeBgOpacity = useSharedValue(1);
 
-        {/* Login Form */}
-        <View style={tw`mt-10`}>
-          {/* Email Input */}
-          <View style={tw`shadow-md mb-6`}>
-            <TextInput
+useEffect(() => {
+  // Step 1: Show "Welcome to" (fade in)
+  welcomeOpacity.value = withTiming(1, { duration: 800 });
+
+  // Step 2: Fade out "Welcome to"
+  setTimeout(() => {
+    welcomeOpacity.value = withTiming(0, { duration: 800 });
+  }, 2000);
+
+  // Step 3: Show logo in center after "Welcome to" disappears
+  setTimeout(() => {
+    logoOpacity.value = withTiming(1, { duration: 800 });
+  }, 2800);
+
+  // Step 4: Move logo and form up together
+  setTimeout(() => {
+    logoTranslateY.value = withTiming(-120, { duration: 800 }); // Move logo higher
+    formOpacity.value = withTiming(1, { duration: 800 });
+    formTranslateY.value = withTiming(-150, { duration: 800 }); // Move form closer to logo
+  }, 4000);
+}, []);
+
+const welcomeStyle = useAnimatedStyle(() => ({
+  opacity: welcomeOpacity.value,
+}));
+
+const logoStyle = useAnimatedStyle(() => ({
+  opacity: logoOpacity.value,
+  transform: [{ translateY: logoTranslateY.value }],
+}));
+
+const formStyle = useAnimatedStyle(() => ({
+  opacity: formOpacity.value,
+  transform: [{ translateY: formTranslateY.value }],
+}));
+
+const welcomeBgStyle = useAnimatedStyle(() => ({
+  opacity: welcomeBgOpacity.value,
+}));
+
+const welcomeTextStyle = useAnimatedStyle(() => ({
+  opacity: welcomeOpacity.value,
+}));
+
+return (
+  <View style={tw`flex-1 bg-[#f8f8f8]`}>
+    <SafeAreaView style={tw`flex-1`}>
+
+      {/* "Welcome to" Transition Background */}
+      <Animated.View style={[tw`absolute w-full h-full justify-center items-center bg-[#f8f8f8]`, welcomeBgStyle]}>
+        <Animated.Text style={[tw`text-3xl font-bold text-white text-center`, welcomeTextStyle]}>
+          Welcome to
+        </Animated.Text>
+      </Animated.View>
+
+      {/* Logo - Initially Centered, Moves Up */}
+      <Animated.View style={[tw`absolute w-full h-full justify-center items-center`, logoStyle]}>
+        <Image
+          source={require('@/assets/images/logo_and_name.png')}
+          style={tw`w-80 h-40`}
+          resizeMode="contain"
+        />
+      </Animated.View>
+
+      {/* Login Form - Moves up with Logo */}
+      <Animated.View style={[tw`absolute bottom-28 w-full px-7`, formStyle]}>
+        {/* Email Input */}
+        <View style={tw`shadow-md mb-6`}>
+        <TextInput
               style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
               placeholder="Email"
               value={credentials.email}
@@ -103,11 +164,11 @@ export default function LoginPage() {
               autoCapitalize="none"
               placeholderTextColor={tw.color('gray-500')}
             />
-          </View>
+        </View>
 
-          {/* Password Input */}
-          <View style={tw`shadow-md mb-6`}>
-            <TextInput
+        {/* Password Input */}
+        <View style={tw`shadow-md mb-6`}>
+        <TextInput
               style={tw`w-full px-4 py-3 bg-white rounded-lg border border-gray-200`}
               placeholder="Password"
               value={credentials.password}
@@ -117,7 +178,6 @@ export default function LoginPage() {
               secureTextEntry
               placeholderTextColor={tw.color('gray-500')}
             />
-          </View>
         </View>
 
         {/* Error Message */}
@@ -132,15 +192,19 @@ export default function LoginPage() {
 
         {/* Login Button */}
         <View style={tw`items-center`}>
-          <TouchableOpacity
-            style={tw`justify-center items-center w-2/3 py-3 px-4 bg-[#ACA592] rounded-lg`}
+        <TouchableOpacity
+            style={tw`justify-center items-center w-2/3 py-3 px-4 bg-[#504a4a] rounded-lg`}
             onPress={handleLogin}
             activeOpacity={0.8}
           >
             <Text style={tw`text-white text-center font-medium`}>Login</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </View>
-  );
+      </Animated.View>
+
+    </SafeAreaView>
+  </View>
+);
+
+
 }
