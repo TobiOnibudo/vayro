@@ -135,7 +135,7 @@ return (
 
       {/* "Welcome to" Transition Background */}
       <Animated.View style={[tw`absolute w-full h-full justify-center items-center bg-[#f8f8f8]`, welcomeBgStyle]}>
-        <Animated.Text style={[tw`text-3xl font-bold text-white text-center`, welcomeTextStyle]}>
+        <Animated.Text style={[tw`text-3xl font-bold text-black text-center`, welcomeTextStyle]}>
           Welcome to
         </Animated.Text>
       </Animated.View>
