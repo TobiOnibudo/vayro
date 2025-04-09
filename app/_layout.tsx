@@ -14,7 +14,7 @@ SplashScreen.preventAutoHideAsync();
 // Unstable settings to set the initial route to the login page
 export const unstable_settings = {
   // Ensure any route can link back to `/`
-  initialRouteName: '(auth)/login',
+  initialRouteName: '(auth)',
 };
 
 export default function RootLayout() {
