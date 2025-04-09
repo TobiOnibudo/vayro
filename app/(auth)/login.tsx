@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, SafeAreaView, Button, Dimensions } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import tw from 'twrnc';
-import { useRouter } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 import { LoginUser } from '@/types/userSchema';
 import { auth } from '@/config/firebaseConfig';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, get } from 'firebase/database';
 import { database } from '@/config/firebaseConfig';
+import { useRouteInfo, useSearchParams } from 'expo-router/build/hooks';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -77,35 +78,61 @@ export default function LoginPage() {
     }
   };
 
-  //Consts for animation
-  const welcomeOpacity = useSharedValue(0);
+//Consts for animation
+const welcomeOpacity = useSharedValue(0);
 const logoOpacity = useSharedValue(0);
-const logoTranslateY = useSharedValue(50);  // Start below center
-const formTranslateY = useSharedValue(50); // Start lower down
+const logoTranslateY = useSharedValue(50);
+const formTranslateY = useSharedValue(50); 
 const formOpacity = useSharedValue(0);
 const welcomeBgOpacity = useSharedValue(1);
+const fromLogin = useSearchParams().get('fromLogin');
+const [ intoLogin, setIntoLogin ] = useState(false);
+const pathName = usePathname();
+
 
 useEffect(() => {
+
+  if (intoLogin === true) {
+    setIntoLogin(true);
+  }
+}, [pathName]);
+
+
+useEffect(() => {
+  const { height: screenHeight } = Dimensions.get('window');
+  const logoMoveY = -screenHeight * 0.24;
+  const formMoveY = -screenHeight * 0.18;
+
+  if(!fromLogin) {
   // Step 1: Show "Welcome to" (fade in)
-  welcomeOpacity.value = withTiming(1, { duration: 800 });
+    welcomeOpacity.value = withTiming(1, { duration: 800 });
 
-  // Step 2: Fade out "Welcome to"
-  setTimeout(() => {
-    welcomeOpacity.value = withTiming(0, { duration: 800 });
-  }, 2000);
+    // Step 2: Fade out "Welcome to"
+    setTimeout(() => {
+      welcomeOpacity.value = withTiming(0, { duration: 800 });
+    }, 2000);
 
-  // Step 3: Show logo in center after "Welcome to" disappears
-  setTimeout(() => {
-    logoOpacity.value = withTiming(1, { duration: 800 });
-  }, 2800);
+    // Step 3: Show logo in center after "Welcome to" disappears
+    setTimeout(() => {
+      logoOpacity.value = withTiming(1, { duration: 800 });
+    }, 2800);
 
-  // Step 4: Move logo and form up together
-  setTimeout(() => {
-    logoTranslateY.value = withTiming(-120, { duration: 800 }); // Move logo higher
-    formOpacity.value = withTiming(1, { duration: 800 });
-    formTranslateY.value = withTiming(-150, { duration: 800 }); // Move form closer to logo
-  }, 4000);
-}, []);
+    // Step 4: Move logo and form up together
+    setTimeout(() => {
+      logoTranslateY.value = withTiming(logoMoveY, { duration: 800 });
+      formOpacity.value = withTiming(1, { duration: 800 });
+      formTranslateY.value = withTiming(formMoveY, { duration: 800 });
+    }, 4000);
+  }else {
+    // Skip animation if coming from login
+    formOpacity.value = withTiming(1, { duration: 0 });
+    formTranslateY.value = withTiming(formMoveY, { duration: 0 });
+    logoOpacity.value = withTiming(1, { duration: 0 });
+    logoTranslateY.value = withTiming(logoMoveY, { duration: 0 });
+    welcomeOpacity.value = withTiming(0, { duration: 0 });
+  }
+
+}, [fromLogin]);
 
 const welcomeStyle = useAnimatedStyle(() => ({
   opacity: welcomeOpacity.value,
@@ -135,12 +162,12 @@ return (
 
       {/* "Welcome to" Transition Background */}
       <Animated.View style={[tw`absolute w-full h-full justify-center items-center bg-[#f8f8f8]`, welcomeBgStyle]}>
-        <Animated.Text style={[tw`text-3xl font-bold text-black text-center`, welcomeTextStyle]}>
+        <Animated.Text style={[tw`text-4xl font-normal text-black text-center`, welcomeTextStyle]}>
           Welcome to
         </Animated.Text>
       </Animated.View>
 
-      {/* Logo - Initially Centered, Moves Up */}
+      {/* Logo Moves Up */}
       <Animated.View style={[tw`absolute w-full h-full justify-center items-center`, logoStyle]}>
         <Image
           source={require('@/assets/images/logo_and_name.png')}
@@ -149,7 +176,7 @@ return (
         />
       </Animated.View>
 
-      {/* Login Form - Moves up with Logo */}
+      {/* Login Form Moves up with Logo */}
       <Animated.View style={[tw`absolute bottom-28 w-full px-7`, formStyle]}>
         {/* Email Input */}
         <View style={tw`shadow-md mb-6`}>
@@ -181,7 +208,7 @@ return (
         </View>
 
         {/* Error Message */}
-        {error && <Text style={tw`text-red-500 text-center mb-4`}>{error}</Text>}
+        {error && <Text style={tw`text-red-500 text-center mb-2`}>{error}</Text>}
 
         {/* Register Link */}
         <View style={tw`items-center mb-15`}>
@@ -205,6 +232,5 @@ return (
     </SafeAreaView>
   </View>
 );
-
 
 }

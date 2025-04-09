@@ -162,7 +162,7 @@ export default function SignUp() {
               {/* Back Button */}
               <View style={tw`flex-row items-center mt-1`}>
                 <TouchableOpacity
-                  onPress={() => router.push('/login')}
+                  onPress={() => router.push('/login?fromLogin=true')}
                   style={[tw`w-13 h-7 bg-[#ACA592] rounded-full flex-row items-center justify-center`, { marginLeft: -10 }]}>
                   <Ionicons name="arrow-back" size={18} color="white" />
                 </TouchableOpacity>
