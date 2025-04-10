@@ -40,7 +40,7 @@ export default function Profile() {
         auth.signOut().then(async () => {
             await AsyncStorage.clear(); 
             Alert.alert("Logout", "You have been logged out.");
-            router.push('/(auth)/login');
+            router.push('/(auth)/login?fromLogin=true');
         }).catch((error) => {
             Alert.alert("Logout Error", error.message);
         });
