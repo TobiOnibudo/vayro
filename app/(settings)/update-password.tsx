@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, SafeAreaView} from 'react-native';
 import { auth } from '@/config/firebaseConfig'; 
 import { updatePassword } from 'firebase/auth';
@@ -10,6 +10,19 @@ const UpdatePassword = () => {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordMatchError, setPasswordMatchError] = useState('');
+    const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+    useEffect(() => {
+        if (newPassword && newPassword === confirmPassword) {
+            setIsButtonEnabled(true);
+            setPasswordMatchError('');
+        } else {
+            setIsButtonEnabled(false);
+            if (newPassword && confirmPassword) {
+                setPasswordMatchError("Passwords do not match.");
+            }
+        }
+    }, [newPassword, confirmPassword]);
 
     const handleUpdatePassword = async () => {
         const user = auth.currentUser;
@@ -87,9 +100,10 @@ const UpdatePassword = () => {
                 </View>
                 <View style={tw`mt-4 w-4/5`}>
                     <TouchableOpacity
-                        style={tw`h-12 justify-center items-center w-full py-3 px-4 bg-[#ACA592] rounded-lg`}
+                        style={tw`h-12 justify-center items-center w-full py-3 px-4 bg-[#ACA592] rounded-lg ${isButtonEnabled ? '' : 'opacity-50'}`}
                         onPress={handleUpdatePassword}
-                        activeOpacity={0.8}>
+                        activeOpacity={isButtonEnabled ? 0.8 : 1}
+                        disabled={!isButtonEnabled}>
                         <Text style={tw`text-white text-center`}>Update Password</Text>
                     </TouchableOpacity>
                 </View>
