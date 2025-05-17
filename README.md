@@ -1,50 +1,54 @@
-# Welcome to your Expo app 👋
+# Varyo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Project Overview
 
-## Get started
+Vayro is a mobile app designed to help young professionals and families price and sell their household items more easily when moving out. It simplifies the selling process by offering real-time pricing suggestions, automatic item categorization, and a smooth, intuitive listing experience.
 
-1. Install dependencies
+Users can create listings, browse available items, get price recommendations, and coordinate local pickups through location-based features. The app also supports filtering, viewing past sales, and capturing item photos directly within the platform for a seamless experience.
 
+Vayro is built to make moving and selling less stressful by offering smart tools and a user-friendly marketplace focused on fair pricing and convenience.
+
+## Features
+
+- User authentication and profile management
+- Create, edit, and delete listings
+- Chat functionality between buyers and sellers
+- Price suggestion feature powered by AI
+- Location-based services to find items nearby
+- User-friendly interface with responsive design
+
+## Contributors
+
+- [Tobi Onibudo](https://github.com/TobiOnibudo/)
+- [Huy Huynh](https://github.com/GHuyHuynh)
+- [Mei Huang](https://github.com/MeiiHuang)
+
+## Getting Started
+
+To run the project locally, follow these steps:
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/TobiOnibudo/vayro.git
+   cd varyo
+   ```
+
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-2. Start the app
+3. **Set up environment variables:**
+   Create a `.env.development` file in the root directory and add the necessary environment variables. You can refer to the `.env` file for the required variables.
 
+4. **Start the development server:**
    ```bash
-    npx expo start
+   npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+5. **Open the app:**
+   You can open the app in an Android emulator, iOS simulator, or on your physical device using the Expo Go app.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Learn More
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+For more information on how to use the app and its features, please refer to the [Expo documentation](https://docs.expo.dev/), [Firebase documentation](https://firebase.google.com/docs) and the [React Native documentation](https://reactnative.dev/docs/getting-started).
